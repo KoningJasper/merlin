@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Merlin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Loading Bootstrap -->
+    <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Loading Flat UI -->
+    <link href="static/css/flat-ui.css" rel="stylesheet">
+    <style type="text/css">
+        .navbar a, .list-group-item-text {
+            font-weight: lighter;
+        }
+
+        #navbar-collapse a {
+            font-weight: lighter;
+        }
+        .nav-spacer {
+            width: 5px;
+        }
+        .spacer {
+           height: 53px;
+        }
+        .line {
+            width: 100%;
+            height: 1px;
+            background-color: #ecf0f1;
+        }
+        .form-control {
+            height: 38px;
+            font-size: 15px;
+            margin-top: -3px;
+            margin-bottom: 3px;
+        }
+        .copy {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        .list-group-item-text {
+
+        }
+    </style>
+
+    <link rel="shortcut icon" href="images/favicon.ico">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+      <script src="js/respond.min.js"></script>
+    <![endif]-->
+    <script src="static/js/jquery-1.8.3.min.js"></script>
+    <script src="static/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script src="static/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/bootstrap-select.js"></script>
+    <script src="static/js/bootstrap-switch.js"></script>
+    <script src="static/js/flatui-checkbox.js"></script>
+    <script src="static/js/flatui-radio.js"></script>
+    <script src="static/js/jquery.tagsinput.js"></script>
+    <script src="static/js/jquery.placeholder.js"></script>
+    <script type="text/javascript">
+        var apiKey      = "$session"; // SABnzbd API-key
+    </script>
+    <script src="static/js/merlin.js"></script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-left">
+                    <li><a href="#queue">$T('menu-queue')</a></li>
+                    <li><a href="#history">$T('menu-history')</a></li>
+                    <li><a href="#status">$T('menu-cons')</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#addNZB">Add NZB</a></li>
+                    <li><a id="menuStatus" href="#pause"></a></li>
+                    <li><a href="#options" data-toggle="modal" data-target="#options">Options</a></li>
+                    <li><a href="./config/">Settings</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Power <b class="caret"></b></a>
+                        <span class="dropdown-arrow"></span>
+                        <ul class="dropdown-menu">
+                            <li><a id="shutdown" href="#">Shutdown</a></li>
+                            <li><a id="restart" href="#">Restart</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container -->
+    </div> <!-- /.navbar -->
+    <div class="spacer"></div>
+    <div class="container">
+
+        <!-- Options Model Box -->
+        <div class="modal fade" id="options" tabindex="-1" role="dialog" aria-labelledby="optionsLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="optionsLabel">Options</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <label for="refreshRate">Refresh Rate</label>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <input id="refreshRate" type="text" pattern="\d*" placeholder="2" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <span>Second(s)</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <label for="speedLimit">Speed Limit</label>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <input id="speedLimit" type="text" pattern="\d*" placeholder="1000" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <span>KB/s</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <label for="queueRows">Queue</label>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <input id="queueRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <span>Rows</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <label for="historyRows">History</label>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <input id="historyRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <span>Rows</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6 copy">
+                                <a href="https://github.com/sloth-o-naut/merlin/">Merlin Project</a><br />
+                            </div>
+                            <div class="col-xs-6 copy" style="text-align: right">
+                                <a href="http://sloth-o-naut.com">Sloth-o-naut.com</a> | <a href="https://twitter.com/koningjasper">@KoningJasper</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="optionSave">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add NZB -->
+
+        <!-- Updates -->
+        <div class="updates">
+        </div>
+
+        <!-- Warnings -->
+        <div class="warning">
+        </div>
+
+        <!-- Speed Graph -->
+        <div class="speedGraph">
+        </div>
+
+        <!-- Queue -->
+        <a name='queue'></a>
+        <div class="queue">
+            <span class="lead">Queue</span>
+            <div class="line"></div>
+        </div>
+
+        <!-- History -->
+        <a name='history'></a>
+        <div class="history">
+            <span class="lead">History</span>
+            <div class="line"></div>
+            <ul class='list-group' id="historyList">
+                
+            </ul>
+        </div>
+
+        <!-- Status -->
+        <a name='status'></a>
+        <div class="Status">
+            <span class="lead">Status</span>
+            <div class="line"></div>
+        </div>
+    </div>
+    <!-- /.container -->
+  </body>
+</html>
