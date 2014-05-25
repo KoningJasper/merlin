@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Merlin</title>
+    <title>SABnzbd</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Loading Bootstrap -->
@@ -61,6 +61,7 @@
     <script src="static/js/flatui-radio.js"></script>
     <script src="static/js/jquery.tagsinput.js"></script>
     <script src="static/js/jquery.placeholder.js"></script>
+    <script src='static/js/highcharts.js'></script>
     <script type="text/javascript">
         var apiKey      = "$session"; // SABnzbd API-key
     </script>
@@ -83,7 +84,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="#addNZB">Add NZB</a></li>
-                    <li><a id="menuStatus" href="#pause"></a></li>
+                    <li><a id="menuStatus" href="#" data="pause">Pause</a></li>
                     <li><a href="#options" data-toggle="modal" data-target="#options">Options</a></li>
                     <li><a href="./config/">Settings</a></li>
                     <li class="dropdown">
@@ -190,7 +191,7 @@
         </div>
 
         <!-- Speed Graph -->
-        <div class="speedGraph">
+        <div id="speedGraph" style="min-width: 100%; height: 400px; margin: 0 auto;">
         </div>
 
         <!-- Queue -->
@@ -198,6 +199,7 @@
         <div class="queue">
             <span class="lead">Queue</span>
             <div class="line"></div>
+            <ul class='list-group' id="queueList"></ul>
         </div>
 
         <!-- History -->
@@ -205,9 +207,7 @@
         <div class="history">
             <span class="lead">History</span>
             <div class="line"></div>
-            <ul class='list-group' id="historyList">
-                
-            </ul>
+            <ul class='list-group' id="historyList"></ul>
         </div>
 
         <!-- Status -->
@@ -215,6 +215,7 @@
         <div class="Status">
             <span class="lead">Status</span>
             <div class="line"></div>
+            <ul class='list-group' id="statusList"></ul>
         </div>
     </div>
     <!-- /.container -->
