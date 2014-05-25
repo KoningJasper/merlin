@@ -42,6 +42,17 @@
         .list-group-item-text {
 
         }
+        .deleteButton {
+        	text-align: right;
+        	margin-top: -5px;
+        }
+        .clearButton {
+        	text-align: right;
+        }
+        .rowSpacer {
+        	min-height: 10px;
+        	min-width: 100%;
+        }
     </style>
 
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -197,7 +208,14 @@
         <!-- Queue -->
         <a name='queue'></a>
         <div class="queue">
-            <span class="lead">Queue</span>
+            <div class='row'>
+        		<div class='col-xs-6'>
+        			<span id='queueLead' class="lead">Queue</span>
+        		</div>
+        		<div class='col-xs-6 clearButton'>
+        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+        		</div>
+        	</div>
             <div class="line"></div>
             <ul class='list-group' id="queueList"></ul>
         </div>
@@ -205,7 +223,14 @@
         <!-- History -->
         <a name='history'></a>
         <div class="history">
-            <span class="lead">History</span>
+        	<div class='row'>
+        		<div class='col-xs-6'>
+        			<span id='historyLead' class="lead">History</span>
+        		</div>
+        		<div class='col-xs-6 clearButton'>
+        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+        		</div>
+        	</div>
             <div class="line"></div>
             <ul class='list-group' id="historyList"></ul>
         </div>
@@ -213,7 +238,14 @@
         <!-- Status -->
         <a name='status'></a>
         <div class="Status">
-            <span class="lead">Status</span>
+        	<div class='row'>
+        		<div class='col-xs-6'>
+        			<span id='statusLead' class="lead">Status</span>
+        		</div>
+        		<div class='col-xs-6 clearButton'>
+        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+        		</div>
+        	</div>
             <div class="line"></div>
             <ul class='list-group' id="statusList"></ul>
         </div>

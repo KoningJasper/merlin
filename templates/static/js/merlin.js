@@ -32,6 +32,12 @@ $(document).ready(function(){
     t = window.setInterval(refresh, refreshRate);
 
     // Functions
+    function clear(what){
+        if(!confirm("Are you sure you want to clear the "+what+"?"))
+            return;
+
+
+    }
     function menuStatusClick(){
         var action = $("#menuStatus").attr('data');
         if(action == "pause"){
@@ -93,7 +99,18 @@ $(document).ready(function(){
             }
         })
         $.when(ajaxCall).then(function(data){
-            
+            $.each(data.warnings, function(index){
+                $("#statusList").html("");
+                var html = "\
+                    <li class='list-group-item historyListItem' id='history-"+index+"'>\
+                        <div class='row'>\
+                            <div class='col-xs-12'>\
+                                <p class='list-group-item-text'></p>\
+                            </div>\
+                        </div>\
+                    </li>";
+                $("#statusList").append(html);
+            });
         });
     }
     function formatSpeed(sp, format){
@@ -218,8 +235,8 @@ $(document).ready(function(){
                             <div class='col-xs-11'>\
                                 <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+".</p>\
                             </div>\
-                            <div class='col-xs-1'>\
-                                <a href='#' class='list-group-item-text deleteButton' id=''>Delete</a>\
+                            <div class='col-xs-1 deleteButton'>\
+                                <button class='btn btn-danger btn-xs'>Delete</button>\
                             </div>\
                         </div>\
                     </li>";
@@ -254,6 +271,12 @@ $(document).ready(function(){
                 window.document.title = "SABnzbd - "+fspeed; // Set title with (formatted) current speed.
             }
 
+            // Time Left
+            var timeLeft = data.queue.timeleft;
+            if(timeLeft !== "0:00:00"){
+                $("#queueLead").text("Queue (~"+timeLeft+" @ "+fspeed+")");
+            }
+
             // Fill Queue list.
             $.each(data.queue.slots, function(index){
                 $('#queueList').html(""); // Clear old queue list.
@@ -266,10 +289,11 @@ $(document).ready(function(){
                             <div class='col-xs-11'>\
                                 <p class='list-group-item-text'>"+this.filename+"</p>\
                             </div>\
-                            <div class='col-xs-1'>\
-                                <a href='#' class='list-group-item-text deleteButton' id=''>Delete</a>\
+                            <div class='col-xs-1 deleteButton'>\
+                                <button class='btn btn-danger btn-xs'>Delete</button>\
                             </div>\
                         </div>\
+                        <div class='rowSpacer'></div>\
                         <div class='row'>\
                             <div class='col-xs-12'>\
                                 <div class='progress'>\
@@ -278,7 +302,6 @@ $(document).ready(function(){
                             </div>\
                         </div>\
                     </li>";
-
                 $('#queueList').append(html); // Output
             });
         });
