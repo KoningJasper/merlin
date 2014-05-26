@@ -1,10 +1,7 @@
-.navbar a, .list-group-item-text {
+.navbar a, .list-group-item-text, #navbar-collapse a {
     font-weight: lighter;
 }
 
-#navbar-collapse a {
-    font-weight: lighter;
-}
 .nav-spacer {
     width: 5px;
 }
