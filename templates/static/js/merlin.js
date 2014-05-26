@@ -105,7 +105,7 @@ $(document).ready(function(){
                     <li class='list-group-item historyListItem' id='history-"+index+"'>\
                         <div class='row'>\
                             <div class='col-xs-12'>\
-                                <p class='list-group-item-text'></p>\
+                                <p class='list-group-item-text'>"+this+"</p>\
                             </div>\
                         </div>\
                     </li>";
@@ -113,22 +113,11 @@ $(document).ready(function(){
             });
         });
     }
-    function formatSpeed(sp, format){
-        var s = parseFloat(sp);
-        if(sp.indexOf('K') !== -1){
-            if(format){
-                return s+" KB/s";
-            } else {
-                return s;
-            }
-        } else if(sp.indexOf("M") !== -1){
-            if(format){
-                return s+" MB/s";
-            } else {
-                return s * 1000;
-            }
+    function formatSpeed(sp){
+        if (sp >= 1000){
+            return Math.round(sp / 1000 * 100) / 100 + " MB/s"; // Return x.xx MB/s
         } else {
-            return 0;
+            return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
         }
     }
     function speedGraph(){
@@ -263,8 +252,8 @@ $(document).ready(function(){
             paused = data.queue.paused;
 
             // Speed
-            speed  = formatSpeed(data.queue.speed, false); // Set speed in [KB/s]
-            fspeed = formatSpeed(data.queue.speed, true); // Formated speed x [KB/s or MB/s]
+            speed  = parseFloat(data.queue.kbpersec); // Set speed in [KB/s]
+            fspeed = formatSpeed(data.queue.kbpersec); // Formated speed x [KB/s or MB/s]
             if (speed == 0){
                 window.document.title = "SABnzbd"; // Set title without speed.
             } else {
@@ -275,6 +264,8 @@ $(document).ready(function(){
             var timeLeft = data.queue.timeleft;
             if(timeLeft !== "0:00:00"){
                 $("#queueLead").text("Queue (~"+timeLeft+" @ "+fspeed+")");
+            } else {
+                $("#queueLead").text("Queue");
             }
 
             // Fill Queue list.
