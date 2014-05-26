@@ -213,24 +213,25 @@ $(document).ready(function(){
             // Check if data already exists.
             if (histLastDat !== data.history.slots[0].completed) {
                 histLastDat = data.history.slots[0].completed; // Set new newest data time.
+                var html    = [];                              // Create empty html array.
 
-                $("#historyList").html("");
                 // Fill history list.
                 $.each(data.history.slots, function(index){
                     var date = new Date(this.completed * 1000);
-                    var html = "\
+                    html.push("\
                     <li class='list-group-item historyListItem' id='history-"+index+"'>\
                         <div class='row'>\
-                            <div class='col-xs-11'>\
+                            <div class='col-xs-10'>\
                                 <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+".</p>\
                             </div>\
-                            <div class='col-xs-1 deleteButton'>\
+                            <div class='col-xs-2 deleteButton'>\
+                                <button class='btn btn-info btn-xs'>Info</button>\
                                 <button class='btn btn-danger btn-xs'>Delete</button>\
                             </div>\
                         </div>\
-                    </li>";
-                    $('#historyList').append(html);
+                    </li>");
                 });
+                $('#historyList').html(html);
             }
         });
     }
@@ -268,13 +269,12 @@ $(document).ready(function(){
                 $("#queueLead").text("Queue");
             }
 
+            $('#queueList').html(""); // Clear old queue list.
             // Fill Queue list.
+            var html = [];
             $.each(data.queue.slots, function(index){
-                $('#queueList').html(""); // Clear old queue list.
-
                 var progress = Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100; // Progress in percent to two decimal places.
-
-                var html = "\
+                html.push("\
                    <li class='list-group-item queueListItem' id='queue-"+index+"'>\
                         <div class='row'>\
                             <div class='col-xs-11'>\
@@ -292,9 +292,10 @@ $(document).ready(function(){
                                 </div>\
                             </div>\
                         </div>\
-                    </li>";
-                $('#queueList').append(html); // Output
+                    </li>");
+                
             });
+            $('#queueList').html(html); // Output
         });
     }
     function restart(){

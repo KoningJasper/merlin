@@ -53,6 +53,9 @@
         	min-height: 10px;
         	min-width: 100%;
         }
+        .panel {
+        	margin-top: 20px;
+        }
     </style>
 
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -201,46 +204,49 @@
 
         <!-- Queue -->
         <a name='queue'></a>
-        <div class="queue">
-            <div class='row'>
-        		<div class='col-xs-6'>
-        			<span id='queueLead' class="lead">Queue</span>
-        		</div>
-        		<div class='col-xs-6 clearButton'>
-        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+        <div class="queue panel panel-default">
+        	<div class='panel-heading'>
+        		<div class='row'>
+	        		<div class='col-xs-6'>
+	        			<span id='queueLead' class="lead">Queue</span>
+	        		</div>
+	        		<div class='col-xs-6 clearButton'>
+	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        		</div>
         		</div>
         	</div>
-            <div class="line"></div>
             <ul class='list-group' id="queueList"></ul>
         </div>
 
         <!-- History -->
         <a name='history'></a>
-        <div class="history">
-        	<div class='row'>
-        		<div class='col-xs-6'>
-        			<span id='historyLead' class="lead">History</span>
-        		</div>
-        		<div class='col-xs-6 clearButton'>
-        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
-        		</div>
-        	</div>
-            <div class="line"></div>
+        <div class="history panel panel-default">
+        	<div class='panel-heading'>
+	        	<div class='row'>
+	        		<div class='col-xs-6'>
+	        			<span id='historyLead' class="lead">History</span>
+	        		</div>
+	        		<div class='col-xs-6 clearButton'>
+	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        		</div>
+	        	</div>
+	        </div>
             <ul class='list-group' id="historyList"></ul>
         </div>
 
         <!-- Status -->
         <a name='status'></a>
-        <div class="Status">
-        	<div class='row'>
-        		<div class='col-xs-6'>
-        			<span id='statusLead' class="lead">Status</span>
-        		</div>
-        		<div class='col-xs-6 clearButton'>
-        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
-        		</div>
-        	</div>
-            <div class="line"></div>
+        <div class="Status panel panel-warning">
+        	<div class='panel-heading'>
+	        	<div class='row'>
+	        		<div class='col-xs-6'>
+	        			<span id='statusLead' class="lead">Status</span>
+	        		</div>
+	        		<div class='col-xs-6 clearButton'>
+	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        		</div>
+	        	</div>
+	        </div>
             <ul class='list-group' id="statusList"></ul>
         </div>
     </div>
