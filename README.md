@@ -15,6 +15,7 @@ Scalable multi-device theme for [SABnzbd](http://sabnzbd.org/). Includes various
 * [Highcharts](http://www.highcharts.com/)
 * [HTML5Shiv](https://github.com/aFarkas/html5shiv)
 * [jQuery](https://jquery.com/)
+* [Respond](https://github.com/scottjehl/Respond)
 
 ### Author
 **Jasper Koning**
