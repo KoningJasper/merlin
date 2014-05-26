@@ -5,7 +5,7 @@ Scalable multi-device theme for [SABnzbd](http://sabnzbd.org/). Includes various
 Right now it's seriously lacking basic functions but the most rudimentary functions are there. Also it includes some weird glitches. Furthermore the code is most likely as inefficient and ugly as hell, but it works for the most part. And it looks kinda good.
 
 ### Installation
-* Grab the latest version from [here](https://github.com/sloth-o-naut/merlin/archive/master.zip).
+* Grab the latest version from [here](https://github.com/sloth-o-naut/merlin/archive/master.zip) or click ZIP button above.
 * Extract to `...SABnzbd_Path.../interfaces/Merlin`.
 * Open SABnzbd.
 * Go to `Config->General->Skins` and select `Merlin`.
