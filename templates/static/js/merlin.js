@@ -27,16 +27,18 @@ $(document).ready(function(){
     $("#shutdown").click(shutdown);
     $("#restart").click(restart);
     $("#menuStatus").click(menuStatusClick);
+    $("#infoBtn").click(infoBtn);
 
     // Refresh periodicly.
     t = window.setInterval(refresh, refreshRate);
 
     // Functions
+    function infoBtn(){
+        $(this).parent().parent().parent().children(".info").slideToggle();
+    }
     function clear(what){
         if(!confirm("Are you sure you want to clear the "+what+"?"))
             return;
-
-
     }
     function menuStatusClick(){
         var action = $("#menuStatus").attr('data');
@@ -225,13 +227,39 @@ $(document).ready(function(){
                                 <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+".</p>\
                             </div>\
                             <div class='col-xs-2 deleteButton'>\
-                                <button class='btn btn-info btn-xs'>Info</button>\
-                                <button class='btn btn-danger btn-xs'>Delete</button>\
+                                <button class='btn btn-info btn-xs infoBtn'>Info</button>\
+                                <button class='btn btn-danger btn-xs' id='deleteBtn'>Delete</button>\
+                            </div>\
+                        </div>\
+                        <div class='row info' style='display: none;'>\
+                            <div class='col-xs-11'>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Status:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.status+"</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Location:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.storage+"</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Downloaded:</span></div>\
+                                    <div class='col-xs-9'><span>"+Math.round(this.downloaded / 1024 / 1024 / 1024 * 100) / 100 +" GB</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Post:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.postproc_time+" seconds.</span></div>\
+                                </div>\
                             </div>\
                         </div>\
                     </li>");
                 });
+
+                // Output
                 $('#historyList').html(html);
+
+                // Register buttons
+                $('.infoBtn').click(infoBtn); 
+                $('.deleteBtn').click(deleteBtn);
             }
         });
     }
