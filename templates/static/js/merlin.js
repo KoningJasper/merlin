@@ -28,6 +28,7 @@ $(document).ready(function(){
     $("#restart").click(restart);
     $("#menuStatus").click(menuStatusClick);
     $("#infoBtn").click(infoBtn);
+    $(".clearBtn").click(clear);
 
     // Refresh periodicly.
     t = window.setInterval(refresh, refreshRate);
@@ -36,9 +37,21 @@ $(document).ready(function(){
     function infoBtn(){
         $(this).parent().parent().parent().children(".info").slideToggle();
     }
-    function clear(what){
+    function clear(){
+        var what = $(this).attr('data');
         if(!confirm("Are you sure you want to clear the "+what+"?"))
             return;
+        $.ajax({
+            url: 'tapi',
+            type: 'GET',
+            cache: false,
+            data: {
+                mode: what,
+                name: 'delete',
+                value: 'all',
+                apikey: apiKey
+            }
+        })
     }
     function menuStatusClick(){
         var action = $("#menuStatus").attr('data');
@@ -101,18 +114,25 @@ $(document).ready(function(){
             }
         })
         $.when(ajaxCall).then(function(data){
+            var html = [];
             $.each(data.warnings, function(index){
-                $("#statusList").html("");
-                var html = "\
-                    <li class='list-group-item historyListItem' id='history-"+index+"'>\
+                dat = this.split("\n");
+                html.push("\
+                    <li class='list-group-item historyListItem' id='history-"+index+"' >\
                         <div class='row'>\
-                            <div class='col-xs-12'>\
-                                <p class='list-group-item-text'>"+this+"</p>\
+                            <div class='col-xs-2'>\
+                                <p class='list-group-item-text statusText'>"+dat[1]+"</p>\
+                            </div>\
+                            <div class='col-xs-7'>\
+                                <p class='list-group-item-text statusText'>"+dat[2]+"</p>\
+                            </div>\
+                            <div class='col-xs-3'>\
+                                <p class='list-group-item-text statusText'>"+dat[0].split(",")[0]+"</p>\
                             </div>\
                         </div>\
-                    </li>";
-                $("#statusList").append(html);
+                    </li>");
             });
+            $("#statusList").html(html);
         });
     }
     function formatSpeed(sp){
@@ -228,7 +248,7 @@ $(document).ready(function(){
                             </div>\
                             <div class='col-xs-2 deleteButton'>\
                                 <button class='btn btn-info btn-xs infoBtn'>Info</button>\
-                                <button class='btn btn-danger btn-xs' id='deleteBtn'>Delete</button>\
+                                <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>\
                             </div>\
                         </div>\
                         <div class='row info' style='display: none;'>\
@@ -260,6 +280,7 @@ $(document).ready(function(){
                 // Register buttons
                 $('.infoBtn').click(infoBtn); 
                 $('.deleteBtn').click(deleteBtn);
+                $(".info").hide();
             }
         });
     }
@@ -309,7 +330,7 @@ $(document).ready(function(){
                                 <p class='list-group-item-text'>"+this.filename+"</p>\
                             </div>\
                             <div class='col-xs-1 deleteButton'>\
-                                <button class='btn btn-danger btn-xs'>Delete</button>\
+                                <button class='btn btn-warning btn-xs'>Delete</button>\
                             </div>\
                         </div>\
                         <div class='rowSpacer'></div>\

@@ -5,10 +5,8 @@
     <title>SABnzbd</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Loading Bootstrap -->
+    <!-- CSS -->
     <link href="static/css/bootstrap.css" rel="stylesheet">
-
-    <!-- Loading Flat UI -->
     <link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/merlin.css" rel="stylesheet">
 
@@ -19,16 +17,6 @@
       <script src="js/html5shiv.js"></script>
       <script src="js/respond.min.js"></script>
     <![endif]-->
-    <script src="static/js/jquery-1.8.3.min.js"></script>
-    <script src="static/js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script src="static/js/jquery.ui.touch-punch.min.js"></script>
-    <script src="static/js/bootstrap.min.js"></script>
-    <script src='static/js/highcharts.js'></script>
-    <script type="text/javascript">
-        var apiKey      = "$session"; // SABnzbd API-key
-    </script>
-    <script src="static/js/merlin.js"></script>
-
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -74,55 +62,55 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <label for="refreshRate">Refresh Rate</label>
                             </div>
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <div class="form-group">
-                                    <input id="refreshRate" type="text" pattern="\d*" placeholder="2" class="form-control" />
+                                	<div class='input-group'>
+                                    	<input id="refreshRate" type="text" pattern="\d*" placeholder="1" class="form-control" />
+                                    	<span class="input-group-addon">Second(s)</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <span>Second(s)</span>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <label for="speedLimit">Speed Limit</label>
                             </div>
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <div class="form-group">
-                                    <input id="speedLimit" type="text" pattern="\d*" placeholder="1000" class="form-control" />
+                                	<div class='input-group'>
+	                                    <input id="speedLimit" type="text" pattern="\d*" placeholder="1000" class="form-control" />
+	                                    <span class="input-group-addon">KB/s</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <span>KB/s</span>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <label for="queueRows">Queue</label>
                             </div>
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <div class="form-group">
-                                    <input id="queueRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+                                	<div class='input-group'>
+	                                    <input id="queueRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+	                                    <span class="input-group-addon">Rows</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <span>Rows</span>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <label for="historyRows">History</label>
                             </div>
-                            <div class="col-xs-4">
+                            <div class="col-xs-6">
                                 <div class="form-group">
-                                    <input id="historyRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+                                	<div class='input-group'>
+	                                    <input id="historyRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+	                                    <span class="input-group-addon">Rows</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <span>Rows</span>
                             </div>
                         </div>
                         <div class="row">
@@ -165,7 +153,7 @@
 	        			<span id='queueLead' class="lead">Queue</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='queue'>Clear</button>
 	        		</div>
         		</div>
         	</div>
@@ -181,7 +169,7 @@
 	        			<span id='historyLead' class="lead">History</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='history'>Clear</button>
 	        		</div>
 	        	</div>
 	        </div>
@@ -197,7 +185,7 @@
 	        			<span id='statusLead' class="lead">Status</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-warning btn-xs'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='status'>Clear</button>
 	        		</div>
 	        	</div>
 	        </div>
@@ -205,5 +193,15 @@
         </div>
     </div>
     <!-- /.container -->
+    <!-- JS -->
+    <script src="static/js/jquery-1.8.3.min.js"></script>
+    <script src="static/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script src="static/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src='static/js/highcharts.js'></script>
+    <script type="text/javascript">
+        var apiKey = "$session"; // SABnzbd API-key
+    </script>
+    <script src="static/js/merlin.js"></script>
   </body>
 </html>
