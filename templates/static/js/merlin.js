@@ -34,6 +34,9 @@ $(document).ready(function(){
     t = window.setInterval(refresh, refreshRate);
 
     // Functions
+    function optionSave(){
+        // Save options and do somethings with it.
+    }
     function infoBtn(){
         $(this).parent().parent().parent().children(".info").slideToggle();
     }
@@ -51,7 +54,8 @@ $(document).ready(function(){
                 value: 'all',
                 apikey: apiKey
             }
-        })
+        });
+        refresh();
     }
     function menuStatusClick(){
         var action = $("#menuStatus").attr('data');
@@ -66,6 +70,7 @@ $(document).ready(function(){
                     apikey: apiKey
                 }
             });
+            paused = true;
             $("#menuStatus").text('Resume');
             $('#menuStatus').attr('data', 'resume');
         } else if(action == "resume"){
@@ -79,6 +84,7 @@ $(document).ready(function(){
                     apikey: apiKey
                 }
             });
+            paused = false;
             $("#menuStatus").text('Pause');
             $('#menuStatus').attr('data', 'pause');
         }
