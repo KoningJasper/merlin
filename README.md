@@ -24,7 +24,7 @@ Screenshots
 -----------
 Here are some (outdated) screenshots to get a impression.
 ![Desktop Interface](http://d.pr/i/vCvJ+)
-![Mobile Interface]()
+![Mobile Interface](http://d.pr/i/bqQp+)
 
 Includes
 --------
