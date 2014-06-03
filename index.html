@@ -1,52 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Merlin by sloth-o-naut</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
     <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <title>Merlin by sloth-o-naut</title>
   </head>
+
   <body>
+    <div id="container">
+      <div class="inner">
 
-      <header>
-        <h1>Merlin</h1>
-        <p>SABnzbd theme</p>
-      </header>
+        <header>
+          <h1>Merlin</h1>
+          <h2>SABnzbd theme</h2>
+        </header>
 
-      <div id="banner">
-        <span id="logo"></span>
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/sloth-o-naut/merlin/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/sloth-o-naut/merlin/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/sloth-o-naut/merlin" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
 
-        <a href="https://github.com/sloth-o-naut/merlin" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/sloth-o-naut/merlin/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/sloth-o-naut/merlin/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
+        <hr>
 
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
-      <section>
-        <h1>
+        <section id="main_content">
+          <h1>
 <a name="merlin" class="anchor" href="#merlin"><span class="octicon octicon-link"></span></a>Merlin</h1>
 
 <p>Scalable multi-device theme for <a href="http://sabnzbd.org/">SABnzbd</a>. Includes various extensions, such as a speed graph, not available on the stock theme.
-Right now it's seriously lacking basic functions but the most rudimentary functions are there. Also it includes some weird glitches. Furthermore the code is most likely as inefficient and ugly as hell, but it works for the most part. And it looks kinda good.</p>
+<strong>THIS IS STILL VERY MUCH A WORK IN PROGRESS!</strong> Right now it's seriously lacking functions but the most rudimentary functions are there. Also it has some weird glitches. Furthermore the code is most likely as inefficient and ugly as hell, but it works for the most part.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <h3>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
+<a name="windows" class="anchor" href="#windows"><span class="octicon octicon-link"></span></a>Windows</h3>
 
 <ul>
 <li>Grab the latest version from <a href="https://github.com/sloth-o-naut/merlin/archive/master.zip">here</a> or click ZIP button above.</li>
@@ -55,7 +50,22 @@ Right now it's seriously lacking basic functions but the most rudimentary functi
 <li>Go to <code>Config-&gt;General-&gt;Skins</code> and select <code>Merlin</code>.</li>
 <li>Press restart.</li>
 </ul><h3>
-<a name="includes" class="anchor" href="#includes"><span class="octicon octicon-link"></span></a>Includes</h3>
+<a name="mac-os-x" class="anchor" href="#mac-os-x"><span class="octicon octicon-link"></span></a>Mac OS X</h3>
+
+<ul>
+<li>Grab the latest version from <a href="https://github.com/sloth-o-naut/merlin/archive/master.zip">here</a> or click ZIP button above.</li>
+<li>Extract to <code>~/Applications/SABnzbd+.app/Contents/Resources/interfaces/Merlin</code>.</li>
+<li>Open SABnzbd.</li>
+<li>Go to <code>Config-&gt;General-&gt;Skins</code> and select <code>Merlin</code>.</li>
+<li>Press restart.</li>
+</ul><h2>
+<a name="screenshots" class="anchor" href="#screenshots"><span class="octicon octicon-link"></span></a>Screenshots</h2>
+
+<p>Here are some (outdated) screenshots to get a impression.
+<img src="http://d.pr/i/vCvJ+" alt="Desktop Interface"><img src="http://d.pr/i/bqQp+" alt="Mobile Interface"></p>
+
+<h2>
+<a name="includes" class="anchor" href="#includes"><span class="octicon octicon-link"></span></a>Includes</h2>
 
 <ul>
 <li><a href="http://designmodo.github.io/Flat-UI/">Flat-UI</a></li>
@@ -63,23 +73,23 @@ Right now it's seriously lacking basic functions but the most rudimentary functi
 <li><a href="https://github.com/aFarkas/html5shiv">HTML5Shiv</a></li>
 <li><a href="https://jquery.com/">jQuery</a></li>
 <li><a href="https://github.com/scottjehl/Respond">Respond</a></li>
-</ul><h3>
-<a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>Author</h3>
-
-<p><strong>Jasper Koning</strong></p>
+</ul><h2>
+<a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>Author</h2>
 
 <ul>
 <li><a href="https://twitter.com/koningjasper">@KoningJasper</a></li>
 <li><a href="http://sloth-o-naut.com">Website</a></li>
 <li><a href="https://github.com/sloth-o-naut/">GitHub</a></li>
 </ul>
-      </section>
-      <footer>
-        <p>Project maintained by <a href="https://github.com/sloth-o-naut">sloth-o-naut</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
-      </footer>
+        </section>
+
+        <footer>
+          Merlin is maintained by <a href="https://github.com/sloth-o-naut">sloth-o-naut</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
   </body>
 </html>
