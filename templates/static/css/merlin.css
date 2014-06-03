@@ -33,3 +33,15 @@
 .statusText {
     font-size: 13px;
 }
+.ball {
+    width: 11px;
+    height: 11px;
+    border-radius: 100%;
+    display: inline-block;
+}
+.green {
+    background-color: #5BCC8B;
+}
+.gray {
+    background-color: #c3c3c3;
+}

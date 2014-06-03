@@ -1,0 +1,24 @@
+{
+<!--#if $servers#-->
+    <!--#set $count=0#-->
+    "servers": [
+    <!--#for $server in $servers#-->
+      <!--#if $count == 0#-->
+        {
+      <!--#else#-->
+        ,{
+      <!--#end if#-->
+      <!--#set $count=$count+1#-->
+      "server": "$server[0]",
+      "status": "<!--#if int($server[7]) != 0#-->2<!--#else if int($server[8]) != 0#-->3<!--#else#-->1<!--#end if#-->",
+      "connections": "$server[2]",
+      <!--#if not $server[5]#-->
+        "blocked": $server[6]
+      <!--#else#-->
+        "blocked": "no"
+      <!--#end if#-->
+      }
+    <!--#end for#-->
+    ]
+  <!--#end if#-->
+}

@@ -3,7 +3,7 @@ var refreshRate = 1000; // Refresh Rate in ms.
 var showGraph   = true; // Show speed graph [true/false].
 var paused      = false;// Is SABnzbd paused.
 var speed;              // Current speed.
-var histLastDat;        // Date of last item added to history.
+var histLastDat = 0;        // Date of last item added to history.
 var graphTime;          // Time at begining of graph.
 var t;                  // Interval variable.
 var speedChart;         // Speed Graph variable.
@@ -38,7 +38,11 @@ $(document).ready(function(){
         // Save options and do somethings with it.
     }
     function infoBtn(){
-        $(this).parent().parent().parent().children(".info").slideToggle();
+        if ($(this).parent().parent().parent().children(".info").css('display') == 'none'){
+            $(this).parent().parent().parent().children(".info").slideToggle();
+        } else {
+            $(".historyListItem > .info").slideUp();
+        }
     }
     function clear(){
         var what = $(this).attr('data');
@@ -106,6 +110,7 @@ $(document).ready(function(){
         fetchHistory();
         fetchQueue();
         fetchWarnings();
+        fetchServerStatus();
         refreshMenuStatus();
     }
     function fetchWarnings(){
@@ -210,7 +215,7 @@ $(document).ready(function(){
                         var data = [],
                             time = (new Date()).getTime(),
                             i;
-        
+
                         for (i = -50; i <= 0; i++) {
                             data.push({
                                 x: time + i * 1000,
@@ -222,6 +227,38 @@ $(document).ready(function(){
                 }],
             });
         }
+    }
+    function fetchServerStatus(){
+        var ajaxCall = $.ajax({
+            url: 'status/',
+            type: 'GET',
+            cache: false
+        });
+        $.when(ajaxCall).then(function (data){
+            data = $.parseJSON(data);
+            var html_dat = [];
+            html_dat.push('<tr><td>Status</td><td>Server</td><td>Connections</td></tr>')
+            $.each(data.servers, function (index){
+                var status = parseInt(this.status);
+                var html   = [];
+                html.push("<tr>");
+                if(status == 1){
+                    // Enabled
+                    html.push("<td><span class='ball green'></span></td>");
+                } else if(status == 2){
+                    // Backup
+                    html.push("<td><span class='ball gray'></span></td>");
+                } else if(status == 3){
+                    // Optional
+                    html.push("<td><span class='ball gray'></span></td>");
+                }
+                html.push("<td><span>"+this.server+"</span></td>");
+                html.push("<td><span>"+this.connections+"</span><td>");
+                html.push('</tr>');
+                html_dat.push(html.join(""));
+            });
+            $("#serverList").html(html_dat);
+        });
     }
     function fetchHistory(){
         // Send request for History data to SABnzbd.
@@ -237,11 +274,64 @@ $(document).ready(function(){
                 apikey: apiKey
             }
         });
-        $.when(ajaxCall).then(function(data){
+        $.when(ajaxCall).then(function (data){
             // Check if data already exists.
-            if (histLastDat !== data.history.slots[0].completed) {
-                histLastDat = data.history.slots[0].completed; // Set new newest data time.
-                var html    = [];                              // Create empty html array.
+            $.each(data.history.slots, function (index){
+                var date = new Date(this.completed * 1000);
+                var html = "\
+                    <li class='list-group-item historyListItem' id='history-"+index+"'>\
+                        <div class='row'>\
+                            <div class='col-xs-10'>\
+                                <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()+".</p>\
+                            </div>\
+                            <div class='col-xs-2 deleteButton'>\
+                                <button class='btn btn-info btn-xs infoBtn'>Info</button>\
+                                <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>\
+                            </div>\
+                        </div>\
+                        <div class='row info' style='display: none;'>\
+                            <div class='col-xs-11'>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Status:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.status+"</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Location:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.storage+"</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Downloaded:</span></div>\
+                                    <div class='col-xs-9'><span>"+Math.round(this.downloaded / 1024 / 1024 / 1024 * 100) / 100 +" GB</span></div>\
+                                </div>\
+                                <div class='row'>\
+                                    <div class='col-xs-2'><span>Post:</span></div>\
+                                    <div class='col-xs-9'><span>"+this.postproc_time+" seconds.</span></div>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </li>";
+                if (parseInt(this.completed) > histLastDat){
+                    // Write because newer.
+                    $('#historyList').prepend(html);
+                } else if (this.completed == histLastDat && this.status !== histLastStatus){
+                    // Write because new status.
+                    $('#historyList').first().remove();
+                    $('#historyList').prepend(html);
+                }
+            });
+
+            histLastDat = data.history.slots[0].completed;
+            histLastStatus = data.history.slots[0].status;
+
+            // Re-Register buttons
+            $('.infoBtn').off('click').click(infoBtn);
+            $('.deleteBtn').off('click').click(deleteBtn);
+            /*
+            $('#historyList').html(html);
+            if (histLastDat !== data.history.slots[0].completed && histLastStatus !== data.history.slots[0].status) {
+                histLastDat    = data.history.slots[0].completed; // Set new newest data time.
+                histLastStatus = data.history.slots[0].status;    // Set new newest status.
+                var html       = [];                              // Create empty html array.
 
                 // Fill history list.
                 $.each(data.history.slots, function(index){
@@ -284,10 +374,11 @@ $(document).ready(function(){
                 $('#historyList').html(html);
 
                 // Register buttons
-                $('.infoBtn').click(infoBtn); 
+                $('.infoBtn').click(infoBtn);
                 $('.deleteBtn').click(deleteBtn);
                 $(".info").hide();
             }
+            */
         });
     }
     function fetchQueue(){
@@ -348,7 +439,7 @@ $(document).ready(function(){
                             </div>\
                         </div>\
                     </li>");
-                
+
             });
             $('#queueList').html(html); // Output
         });
