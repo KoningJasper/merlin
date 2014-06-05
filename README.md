@@ -15,10 +15,13 @@ Installation
 
 ### Mac OS X ###
 * Grab the latest version from [here](https://github.com/sloth-o-naut/merlin/archive/master.zip) or click ZIP button above.
-* Extract to `~/Applications/SABnzbd+.app/Contents/Resources/interfaces/Merlin`.
+* Extract to `/Applications/SABnzbd.app/Contents/Resources/interfaces/Merlin`.
 * Open SABnzbd.
 * Go to `Config->General->Skins` and select `Merlin`.
 * Press restart.
+
+### Linux ###
+* Extract to interfaces folder......
 
 Screenshots
 -----------
@@ -33,6 +36,7 @@ Includes
 * [HTML5Shiv](https://github.com/aFarkas/html5shiv)
 * [jQuery](https://jquery.com/)
 * [Respond](https://github.com/scottjehl/Respond)
+* [Knockout](http://knockoutjs.com)
 
 Author
 ------
