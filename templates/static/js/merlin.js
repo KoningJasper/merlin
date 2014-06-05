@@ -3,17 +3,89 @@ var refreshRate = 1000; // Refresh Rate in ms.
 var showGraph   = true; // Show speed graph [true/false].
 var paused      = false;// Is SABnzbd paused.
 var speed;              // Current speed.
-var histLastDat = 0;        // Date of last item added to history.
+var histLastDat = 0;    // Date of last item added to history.
 var graphTime;          // Time at begining of graph.
 var t;                  // Interval variable.
 var speedChart;         // Speed Graph variable.
 var fspeed;             // Formatted speed [KB/s or MB/s]
 
-
+function queueItem(name, progress){
+    var self = this;
+    self.name = name;
+    self.progress = progress;
+}
+function historyItem(name, status, storage, downloaded, postTime){
+    var self = this;
+    self.name = name;
+    self.status = status;
+    self.storage = storage;
+    self.downloaded = downloaded;
+    self.postTime = postTime;
+}
+var queueModel = function (){
+    var self = this;
+    self.item = ko.observableArray();
+    self.refresh = function(opts){
+        self.item.removeAll();
+        var ajaxCall = $.ajax({
+            url: 'tapi',
+            type: 'GET',
+            cache: false,
+            data: {
+                mode: 'queue',
+                start: 0,
+                limit: items,
+                output: 'json',
+                apikey: apiKey
+            }
+        });
+        $.when(ajaxCall).then(function (data){
+            $.each(data.queue.slots, function (index){
+                self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
+                self.item.push(new queueItem(this.filename, String(self.progress)));
+            });
+        });
+    }
+}
+var historyModel = function (){
+    var self = this;
+    self.item = ko.observableArray();
+    self.refresh = function(opts){
+        self.item.removeAll();
+        var ajaxCall = $.ajax({
+            url: 'tapi',
+            type: 'GET',
+            cache: false,
+            data: {
+                mode: 'history',
+                start: 0,
+                limit: items,
+                output: 'json',
+                apikey: apiKey
+            }
+        });
+        $.when(ajaxCall).then(function (data){
+            $.each(data.history.slots, function (index){
+                self.date = new Date(this.completed * 1000);
+                self.item.push(new historyItem(this.name, this.status, this.storage, this.downloaded, this.postproc_time));
+            });
+        });
+    }
+}
+function main(){
+    var self   = this;
+    self.hist  = new historyModel();
+    self.queue = new queueModel();
+    var_xt = window.setInterval(function (){
+        self.hist.refresh();
+        self.queue.refresh();
+    }, refreshRate);
+}
 $(document).ready(function(){
     // Wait untill the document is ready for manipulation.
 
     // Init
+    ko.applyBindings(main());
     refresh();
     speedGraph();
     Highcharts.setOptions({
@@ -261,188 +333,8 @@ $(document).ready(function(){
         });
     }
     function fetchHistory(){
-        // Send request for History data to SABnzbd.
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'history',
-                start: 0,
-                limit: items,
-                output: 'json',
-                apikey: apiKey
-            }
-        });
-        $.when(ajaxCall).then(function (data){
-            // Check if data already exists.
-            $.each(data.history.slots, function (index){
-                var date = new Date(this.completed * 1000);
-                var html = "\
-                    <li class='list-group-item historyListItem' id='history-"+index+"'>\
-                        <div class='row'>\
-                            <div class='col-xs-10'>\
-                                <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()+".</p>\
-                            </div>\
-                            <div class='col-xs-2 deleteButton'>\
-                                <button class='btn btn-info btn-xs infoBtn'>Info</button>\
-                                <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>\
-                            </div>\
-                        </div>\
-                        <div class='row info' style='display: none;'>\
-                            <div class='col-xs-11'>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Status:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.status+"</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Location:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.storage+"</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Downloaded:</span></div>\
-                                    <div class='col-xs-9'><span>"+Math.round(this.downloaded / 1024 / 1024 / 1024 * 100) / 100 +" GB</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Post:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.postproc_time+" seconds.</span></div>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </li>";
-                if (parseInt(this.completed) > histLastDat){
-                    // Write because newer.
-                    $('#historyList').prepend(html);
-                } else if (this.completed == histLastDat && this.status !== histLastStatus){
-                    // Write because new status.
-                    $('#historyList').first().remove();
-                    $('#historyList').prepend(html);
-                }
-            });
-
-            histLastDat = data.history.slots[0].completed;
-            histLastStatus = data.history.slots[0].status;
-
-            // Re-Register buttons
-            $('.infoBtn').off('click').click(infoBtn);
-            $('.deleteBtn').off('click').click(deleteBtn);
-            /*
-            $('#historyList').html(html);
-            if (histLastDat !== data.history.slots[0].completed && histLastStatus !== data.history.slots[0].status) {
-                histLastDat    = data.history.slots[0].completed; // Set new newest data time.
-                histLastStatus = data.history.slots[0].status;    // Set new newest status.
-                var html       = [];                              // Create empty html array.
-
-                // Fill history list.
-                $.each(data.history.slots, function(index){
-                    var date = new Date(this.completed * 1000);
-                    html.push("\
-                    <li class='list-group-item historyListItem' id='history-"+index+"'>\
-                        <div class='row'>\
-                            <div class='col-xs-10'>\
-                                <p class='list-group-item-text'>"+this.nzb_name+" &mdash; Completed on "+date.getDate()+"-"+date.getMonth()+"-"+date.getFullYear()+".</p>\
-                            </div>\
-                            <div class='col-xs-2 deleteButton'>\
-                                <button class='btn btn-info btn-xs infoBtn'>Info</button>\
-                                <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>\
-                            </div>\
-                        </div>\
-                        <div class='row info' style='display: none;'>\
-                            <div class='col-xs-11'>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Status:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.status+"</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Location:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.storage+"</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Downloaded:</span></div>\
-                                    <div class='col-xs-9'><span>"+Math.round(this.downloaded / 1024 / 1024 / 1024 * 100) / 100 +" GB</span></div>\
-                                </div>\
-                                <div class='row'>\
-                                    <div class='col-xs-2'><span>Post:</span></div>\
-                                    <div class='col-xs-9'><span>"+this.postproc_time+" seconds.</span></div>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </li>");
-                });
-
-                // Output
-                $('#historyList').html(html);
-
-                // Register buttons
-                $('.infoBtn').click(infoBtn);
-                $('.deleteBtn').click(deleteBtn);
-                $(".info").hide();
-            }
-            */
-        });
     }
     function fetchQueue(){
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'queue',
-                start: 0,
-                limit: items,
-                output: 'json',
-                apikey: apiKey
-            }
-        });
-        $.when(ajaxCall).then(function(data){
-            // Pause
-            paused = data.queue.paused;
-
-            // Speed
-            speed  = parseFloat(data.queue.kbpersec); // Set speed in [KB/s]
-            fspeed = formatSpeed(data.queue.kbpersec); // Formated speed x [KB/s or MB/s]
-            if (speed == 0){
-                window.document.title = "SABnzbd"; // Set title without speed.
-            } else {
-                window.document.title = "SABnzbd - "+fspeed; // Set title with (formatted) current speed.
-            }
-
-            // Time Left
-            var timeLeft = data.queue.timeleft;
-            if(timeLeft !== "0:00:00"){
-                $("#queueLead").text("Queue (~"+timeLeft+" @ "+fspeed+")");
-            } else {
-                $("#queueLead").text("Queue");
-            }
-
-            $('#queueList').html(""); // Clear old queue list.
-            // Fill Queue list.
-            var html = [];
-            $.each(data.queue.slots, function(index){
-                var progress = Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100; // Progress in percent to two decimal places.
-                html.push("\
-                   <li class='list-group-item queueListItem' id='queue-"+index+"'>\
-                        <div class='row'>\
-                            <div class='col-xs-11'>\
-                                <p class='list-group-item-text'>"+this.filename+"</p>\
-                            </div>\
-                            <div class='col-xs-1 deleteButton'>\
-                                <button class='btn btn-warning btn-xs'>Delete</button>\
-                            </div>\
-                        </div>\
-                        <div class='rowSpacer'></div>\
-                        <div class='row'>\
-                            <div class='col-xs-12'>\
-                                <div class='progress'>\
-                                    <div class='progress-bar' role='progressbar' aria-valuenow='"+progress+"' aria-valuemin='0' aria-valuemax='100' style='width: "+progress+"%'>"+progress+"%</div></div>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </li>");
-
-            });
-            $('#queueList').html(html); // Output
-        });
     }
     function restart(){
         // Restart SABnzbd.

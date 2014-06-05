@@ -174,7 +174,26 @@
 	        		</div>
         		</div>
         	</div>
-            <ul class='list-group' id="queueList"></ul>
+            <ul class='list-group' id="queueList" data-bind="foreach: queue.item">
+            	<li class='list-group-item queueListItem'>
+                    <div class='row'>
+                        <div class='col-xs-11'>
+                            <p class='list-group-item-text' data-bind="text: name"></p>
+                        </div>
+                        <div class='col-xs-1 deleteButton'>
+                            <button class='btn btn-warning btn-xs'>Delete</button>
+                        </div>
+                    </div>
+                    <div class='rowSpacer'></div>
+                    <div class='row'>
+                        <div class='col-xs-12'>
+                            <div class='progress'>
+                            	<div class='progress-bar' role='progressbar' aria-valuenow='10' aria-valuemin='0' aria-valuemax='100' data-bind="style: { width: progress + '%' }"><span data-bind="text: progress"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div><!-- ./queue -->
 
         <!-- History -->
@@ -190,7 +209,39 @@
 	        		</div>
 	        	</div>
 	        </div>
-            <ul class='list-group' id="historyList"></ul>
+            <ul class='list-group' id="historyList" data-bind="foreach: hist.item">
+            	<li class='list-group-item historyListItem' id='history'>
+                    <div class='row'>
+                        <div class='col-xs-10'>
+                            <p class='list-group-item-text' data-bind="text: name"></p>
+                        </div>
+                        <div class='col-xs-2 deleteButton'>
+                            <button class='btn btn-info btn-xs infoBtn'>Info</button>
+                            <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>
+                        </div>
+                    </div>
+                    <div class='row info' style='display: none;'>
+                        <div class='col-xs-11'>
+                            <div class='row'>
+                                <div class='col-xs-2'><span>Status:</span></div>
+                                <div class='col-xs-9'><span data-bind="text: status"></span></div>
+                            </div>
+                            <div class='row'>
+                                <div class='col-xs-2'><span>Location:</span></div>
+                                <div class='col-xs-9'><span data-bind="text: storage"></span></div>
+                            </div>
+                            <div class='row'>
+                                <div class='col-xs-2'><span>Downloaded:</span></div>
+                                <div class='col-xs-9'><span data-bind="text: downloaded"></span></div>
+                            </div>
+                            <div class='row'>
+                                <div class='col-xs-2'><span>Post:</span></div>
+                                <div class='col-xs-9'><span data-bind="text: postTime"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div><!-- ./history -->
 
         <!-- ServerList -->
@@ -225,6 +276,7 @@
     <script src="static/js/jquery.ui.touch-punch.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
     <script src='static/js/highcharts.js'></script>
+    <script src='static/js/knockout-3.1.0.js'></script>
     <script type="text/javascript">
         var apiKey = "$session"; // SABnzbd API-key
     </script>
