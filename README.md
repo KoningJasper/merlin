@@ -37,6 +37,7 @@ Includes
 * [jQuery](https://jquery.com/)
 * [Respond](https://github.com/scottjehl/Respond)
 * [Knockout](http://knockoutjs.com)
+* [Bootstrap](http://getbootstrap.com)
 
 Author
 ------
