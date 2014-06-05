@@ -10,7 +10,9 @@
     <link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/merlin.css" rel="stylesheet">
 
+    <!--
     <link rel="shortcut icon" href="static/images/favicon.ico">
+    -->
 
     <!-- HTML5 shim, for IE support of HTML5 elements. All other JS at the end of file. -->
     <!--[if lt IE 9]>
@@ -250,7 +252,13 @@
 			<div class='panel-heading'>
 	        	<span id='statusLead' class="lead">Servers</span>
 	        </div>
-	        <table class='table' id='serverList'></table>
+	        <table class='table' id='serverList' data-bind="foreach: servers.item">
+	        	<tr>
+	        		<td><span class='ball' data-bind='css: color'></span></td>
+	        		<td><span data-bind="text: host"></span></td>
+	        		<td><span data-bind="text: connections"></span></td>
+	        	</tr>
+	        </table>
 		</div><!-- ./serverList -->
 
 		<!-- Status -->
@@ -266,7 +274,21 @@
 	        		</div>
 	        	</div>
 	        </div>
-            <ul class='list-group' id="statusList"></ul>
+            <ul class='list-group' id="statusList" data-bind="foreach: stat.item">
+            	<li class='list-group-item historyListItem'>
+            		<div class='row'>
+            			<div class='col-xs-2'>
+            				<p class='list-group-item-text statusText' data-bind='text: type'></p>
+            			</div>
+            			<div class='col-xs-7'>
+            				<p class='list-group-item-text statusText' data-bind='text: message'></p>
+            			</div>
+            			<div class='col-xs-3'>
+            				<p class='list-group-item-text statusText' data-bind='text: time'></p>
+            			</div>
+            		</div>
+            	</li>
+            </ul>
         </div><!-- ./status -->
     </div><!-- /.container -->
     

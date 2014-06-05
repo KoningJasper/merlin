@@ -1,13 +1,13 @@
-var items       = 10;   // Number of item(s) to fetch.
-var refreshRate = 1000; // Refresh Rate in ms.
-var showGraph   = true; // Show speed graph [true/false].
-var paused      = false;// Is SABnzbd paused.
-var speed;              // Current speed.
-var histLastDat = 0;    // Date of last item added to history.
-var graphTime;          // Time at begining of graph.
-var t;                  // Interval variable.
-var speedChart;         // Speed Graph variable.
-var fspeed;             // Formatted speed [KB/s or MB/s]
+var items       = 10;    // Number of item(s) to fetch.
+var refreshRate = 1000;  // Refresh Rate in ms.
+var showGraph   = true;  // Show speed graph [true/false].
+var paused      = false; // Is SABnzbd paused.
+var speed;               // Current speed.
+var histLastDat = 0;     // Date of last item added to history.
+var graphTime;           // Time at begining of graph.
+var t;                   // Interval variable.
+var speedChart;          // Speed Graph variable.
+var fspeed;              // Formatted speed [KB/s or MB/s]
 
 function queueItem(name, progress){
     var self = this;
@@ -22,11 +22,83 @@ function historyItem(name, status, storage, downloaded, postTime){
     self.downloaded = downloaded;
     self.postTime = postTime;
 }
+function statusItem(type, message, time){
+    var self     = this;
+    self.type    = type;
+    self.message = message;
+    self.time    = time;
+}
+function serverItem(status, server, connections){
+    var self   = this;
+    self.color = status;
+    self.host  = server;
+    self.connections = connections;
+}
+var serverModel = function (){
+    var self = this;
+    self.item = ko.observableArray();
+    self.last;
+    self.refresh = function (options){
+        var ajaxCall = $.ajax({
+            url: 'status/',
+            type: 'GET',
+            cache: false
+        });
+        $.when(ajaxCall).then(function (data){
+            // Check if new data.
+            if (self.last !== data){
+                self.last = data;
+                self.item.removeAll();
+                dat = $.parseJSON(data);
+                $.each(dat.servers, function (index){
+                    var status = parseInt(this.status);
+                    var color;
+                    if (status == 1){
+                        color = 'green';
+                    } else if (status == 2){
+                        color = 'gray';
+                    } else if (status == 3){
+                        color = 'gray';
+                    }
+                    self.item.push(new serverItem(color, this.server, this.connections));
+                });
+            }
+        });
+    }
+}
+var statusModel = function (){
+    var self  = this;
+    self.item = ko.observableArray();
+    self.last = 0; // Last status.
+    self.refresh = function (options){
+        var ajaxCall = $.ajax({
+            url: 'tapi',
+            type: 'GET',
+            cache: false,
+            data: {
+                mode: 'warnings',
+                output: 'json',
+                apikey: apiKey
+            }
+        });
+        $.when(ajaxCall).then(function (data){
+            __temp_last = data.warnings[0].split("\n")[0]
+            if(__temp_last !== self.last){
+                self.last = __temp_last;
+                self.item.removeAll();
+                $.each(data.warnings, function (index){
+                    data = this.split("\n");
+                    self.item.push(new statusItem(data[1], data[2], data[0].split(",")[0]));
+                });
+                self.item.reverse();
+            }
+        });
+    }
+}
 var queueModel = function (){
     var self = this;
     self.item = ko.observableArray();
-    self.refresh = function(opts){
-        self.item.removeAll();
+    self.refresh = function (options){
         var ajaxCall = $.ajax({
             url: 'tapi',
             type: 'GET',
@@ -40,6 +112,7 @@ var queueModel = function (){
             }
         });
         $.when(ajaxCall).then(function (data){
+            self.item.removeAll(); // Clear prev.
             $.each(data.queue.slots, function (index){
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
                 self.item.push(new queueItem(this.filename, String(self.progress)));
@@ -50,8 +123,8 @@ var queueModel = function (){
 var historyModel = function (){
     var self = this;
     self.item = ko.observableArray();
-    self.refresh = function(opts){
-        self.item.removeAll();
+    self.last;
+    self.refresh = function (options){
         var ajaxCall = $.ajax({
             url: 'tapi',
             type: 'GET',
@@ -65,27 +138,40 @@ var historyModel = function (){
             }
         });
         $.when(ajaxCall).then(function (data){
-            $.each(data.history.slots, function (index){
-                self.date = new Date(this.completed * 1000);
-                self.item.push(new historyItem(this.name, this.status, this.storage, this.downloaded, this.postproc_time));
-            });
+
+            // Check if newer info.
+            if (self.last !== data.history.slots[0]){
+                self.item.removeAll();
+                $.each(data.history.slots, function (index){
+                    self.date = new Date(this.completed * 1000);
+                    self.item.push(new historyItem(this.name, this.status, this.storage, this.downloaded, this.postproc_time));
+                });
+            }
         });
     }
 }
-function main(){
-    var self   = this;
-    self.hist  = new historyModel();
-    self.queue = new queueModel();
-    var_xt = window.setInterval(function (){
+var main = function (){
+    var self     = this;
+    self.hist    = new historyModel(); // for someway self.history.refresh() doesn't work so use self.hist.
+    self.queue   = new queueModel();
+    self.stat    = new statusModel();
+    self.servers = new serverModel();
+    self.refresh = function (){
         self.hist.refresh();
         self.queue.refresh();
-    }, refreshRate);
+        self.stat.refresh();
+        self.servers.refresh();
+    }
+    var _xt = window.setInterval(self.refresh, refreshRate);
+
+    // Init
+    self.refresh(); // Refresh once.
 }
 $(document).ready(function(){
     // Wait untill the document is ready for manipulation.
 
     // Init
-    ko.applyBindings(main());
+    ko.applyBindings(main);
     refresh();
     speedGraph();
     Highcharts.setOptions({
@@ -186,37 +272,6 @@ $(document).ready(function(){
         refreshMenuStatus();
     }
     function fetchWarnings(){
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'warnings',
-                output: 'json',
-                apikey: apiKey
-            }
-        })
-        $.when(ajaxCall).then(function(data){
-            var html = [];
-            $.each(data.warnings, function(index){
-                dat = this.split("\n");
-                html.push("\
-                    <li class='list-group-item historyListItem' id='history-"+index+"' >\
-                        <div class='row'>\
-                            <div class='col-xs-2'>\
-                                <p class='list-group-item-text statusText'>"+dat[1]+"</p>\
-                            </div>\
-                            <div class='col-xs-7'>\
-                                <p class='list-group-item-text statusText'>"+dat[2]+"</p>\
-                            </div>\
-                            <div class='col-xs-3'>\
-                                <p class='list-group-item-text statusText'>"+dat[0].split(",")[0]+"</p>\
-                            </div>\
-                        </div>\
-                    </li>");
-            });
-            $("#statusList").html(html);
-        });
     }
     function formatSpeed(sp){
         if (sp >= 1000){
@@ -301,36 +356,6 @@ $(document).ready(function(){
         }
     }
     function fetchServerStatus(){
-        var ajaxCall = $.ajax({
-            url: 'status/',
-            type: 'GET',
-            cache: false
-        });
-        $.when(ajaxCall).then(function (data){
-            data = $.parseJSON(data);
-            var html_dat = [];
-            html_dat.push('<tr><td>Status</td><td>Server</td><td>Connections</td></tr>')
-            $.each(data.servers, function (index){
-                var status = parseInt(this.status);
-                var html   = [];
-                html.push("<tr>");
-                if(status == 1){
-                    // Enabled
-                    html.push("<td><span class='ball green'></span></td>");
-                } else if(status == 2){
-                    // Backup
-                    html.push("<td><span class='ball gray'></span></td>");
-                } else if(status == 3){
-                    // Optional
-                    html.push("<td><span class='ball gray'></span></td>");
-                }
-                html.push("<td><span>"+this.server+"</span></td>");
-                html.push("<td><span>"+this.connections+"</span><td>");
-                html.push('</tr>');
-                html_dat.push(html.join(""));
-            });
-            $("#serverList").html(html_dat);
-        });
     }
     function fetchHistory(){
     }
