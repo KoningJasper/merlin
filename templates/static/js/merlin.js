@@ -3,12 +3,11 @@ var refreshRate = 1000;  // Refresh Rate in ms.
 var showGraph   = true;  // Show speed graph [true/false].
 var paused      = false; // Is SABnzbd paused.
 var speed;               // Current speed.
-var histLastDat = 0;     // Date of last item added to history.
-var graphTime;           // Time at begining of graph.
 var t;                   // Interval variable.
 var speedChart;          // Speed Graph variable.
 var fspeed;              // Formatted speed [KB/s or MB/s]
 
+// Data templates //
 function queueItem(name, progress){
     var self = this;
     self.name = name;
@@ -34,6 +33,8 @@ function serverItem(status, server, connections){
     self.host  = server;
     self.connections = connections;
 }
+
+// Models //
 var serverModel = function (){
     var self = this;
     self.item = ko.observableArray();
@@ -112,7 +113,27 @@ var queueModel = function (){
             }
         });
         $.when(ajaxCall).then(function (data){
-            self.item.removeAll(); // Clear prev.
+            // Paused?
+            paused = data.queue.paused;
+
+            // Speed
+            speed = parseFloat(data.queue.kbpersec); // Set speed in [KB/s]
+            fspeed = formatSpeed(data.queue.kbpersec); // Formated speed x [KB/s or MB/s]
+            if (speed == 0){
+                window.document.title = "SABnzbd"; // Set window title without speed.
+            } else {
+                window.document.title = "SABnzbd - "+fspeed; // Set window title with (formatted) current speed.
+            }
+
+            // Time Left
+            var timeLeft = data.queue.timeleft;
+            if(timeLeft !== "0:00:00"){
+                $("#queueLead").text("Queue (~"+timeLeft+" @ "+fspeed+")");
+            } else {
+                $("#queueLead").text("Queue");
+            }
+
+            self.item.removeAll(); // Clear prev. queue.
             $.each(data.queue.slots, function (index){
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
                 self.item.push(new queueItem(this.filename, String(self.progress)));
@@ -150,6 +171,8 @@ var historyModel = function (){
         });
     }
 }
+
+// Main function //
 var main = function (){
     var self     = this;
     self.hist    = new historyModel(); // for someway self.history.refresh() doesn't work so use self.hist.
@@ -166,6 +189,15 @@ var main = function (){
 
     // Init
     self.refresh(); // Refresh once.
+}
+
+// Misc functions //
+function formatSpeed(sp){
+    if (sp >= 1000){
+        return Math.round(sp / 1000 * 100) / 100 + " MB/s"; // Return x.xx MB/s
+    } else {
+        return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
+    }
 }
 $(document).ready(function(){
     // Wait untill the document is ready for manipulation.
@@ -273,13 +305,7 @@ $(document).ready(function(){
     }
     function fetchWarnings(){
     }
-    function formatSpeed(sp){
-        if (sp >= 1000){
-            return Math.round(sp / 1000 * 100) / 100 + " MB/s"; // Return x.xx MB/s
-        } else {
-            return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
-        }
-    }
+    
     function speedGraph(){
         if(showGraph == true){
             // Graph is true.
