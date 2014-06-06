@@ -2,12 +2,14 @@ var items       = 10;    // Number of item(s) to fetch.
 var refreshRate = 1000;  // Refresh Rate in ms.
 var showGraph   = true;  // Show speed graph [true/false].
 var speed;               // Current speed.
-var t;                   // Interval variable.
+var _t;                  // Interval variable.
+var _gt;                 // Interval variable graph.
 var speedChart;          // Speed Graph variable.
 var fspeed;              // Formatted speed [KB/s or MB/s]
 
 // Misc functions //
 function tapiXhr(endpoint, options){
+    // Send a request to the template api of SABnzbd+ with options.
     var xhr = $.ajax({
         url: 'tapi',
         type: 'GET',
@@ -19,6 +21,43 @@ function tapiXhr(endpoint, options){
         }, options)
     });
     return xhr;
+}
+function formatSpeed(sp){
+    // Return a nice formated speed.
+    if (sp >= 1000){
+        return Math.round(sp / 1000 * 100) / 100 + " MB/s"; // Return x.xx MB/s
+    } else {
+        return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
+    }
+}
+function speedGraph(){
+    var chart;
+    $('#speedGraph').highcharts({
+        chart: {
+            type: 'spline',
+            animation: Highcharts.svg, // don't animate in old IE
+            marginRight: 10,
+            events: {load: function() {
+                    var series = this.series[0];
+                    _gt = setInterval(function() {
+                        var x = (new Date()).getTime(), y = speed;
+                        series.addPoint([x, y], true, true);
+                    }, refreshRate);
+        }}},
+        title: {text: 'Speed'},
+        xAxis: {type: 'datetime',tickPixelInterval: 100},
+        yAxis: {title: {text: 'Speed (KB/s)'},plotLines: [{value: 0,width: 1,color: '#808080'}],min: 0},
+        tooltip: {enabled: false},
+        legend: {enabled: false},
+        exporting: {enabled: false},
+        plotOptions: {spline: {marker: {enabled: false}}},
+        series: [{name: 'Speed Data',data: (function() {
+                var data = [],time = (new Date()).getTime(),i;
+                for (i = -50; i <= 0; i++) {data.push({x: time + i * 1000,y: 0});}
+                return data;
+            })()
+        }],
+    });
 }
 // Data templates //
 function queueItem(nzo_id, name, progress){
@@ -221,7 +260,7 @@ var historyModel = function (){
 // Main function //
 var main = function (){
     var self     = this;
-    self.hist    = new historyModel(); // for someway self.history.refresh() doesn't work so use self.hist.
+    self.hist    = new historyModel(); // for some reason self.history.refresh() doesn't work so use self.hist.
     self.queue   = new queueModel();
     self.stat    = new statusModel();
     self.servers = new serverModel();
@@ -233,19 +272,10 @@ var main = function (){
         self.stat.refresh();
         self.servers.refresh();
     }
-    var _xt = window.setInterval(self.refresh, refreshRate);
+    _t = window.setInterval(self.refresh, refreshRate);
 
     // Init
     self.refresh(); // Refresh once.
-}
-
-// Misc functions //
-function formatSpeed(sp){
-    if (sp >= 1000){
-        return Math.round(sp / 1000 * 100) / 100 + " MB/s"; // Return x.xx MB/s
-    } else {
-        return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
-    }
 }
 $(document).ready(function(){
     // Wait untill the document is ready for manipulation.
@@ -258,115 +288,4 @@ $(document).ready(function(){
             useUTC: false
         }
     });
-
-    // Register buttons.
-    $("#optionSave").click(optionSave);
-
-    // Refresh periodicly.
-    t = window.setInterval(refresh, refreshRate);
-
-    function optionSave(){
-        $("#options").modal("hide"); // Hide the modal box
-    }
-    
-    function speedGraph(){
-        if(showGraph == true){
-            // Graph is true.
-            var chart;
-            $('#speedGraph').highcharts({
-                chart: {
-                    type: 'spline',
-                    animation: Highcharts.svg, // don't animate in old IE
-                    marginRight: 10,
-                    events: {
-                        load: function() {
-                            // set up the updating of the chart each second
-                            var series = this.series[0];
-                            setInterval(function() {
-                                var x = (new Date()).getTime(), // current time
-                                    y = speed;
-                                series.addPoint([x, y], true, true);
-                            }, refreshRate);
-                        }
-                    }
-                },
-                title: {
-                    text: 'Speed'
-                },
-                xAxis: {
-                    type: 'datetime',
-                    tickPixelInterval: 100
-                },
-                yAxis: {
-                    title: {
-                        text: 'Speed (KB/s)'
-                    },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }],
-                    min: 0
-                },
-                tooltip: {
-                    enabled: false
-                },
-                legend: {
-                    enabled: false
-                },
-                exporting: {
-                    enabled: false
-                },
-                plotOptions: {
-                    spline: {
-                        marker: {
-                            enabled: false
-                        }
-                    }
-                },
-                series: [{
-                    name: 'Random data',
-                    data: (function() {
-                        // generate an array of random data
-                        var data = [],
-                            time = (new Date()).getTime(),
-                            i;
-
-                        for (i = -50; i <= 0; i++) {
-                            data.push({
-                                x: time + i * 1000,
-                                y: 0
-                            });
-                        }
-                        return data;
-                    })()
-                }],
-            });
-        }
-    }
-    function restart(){
-        // Restart SABnzbd.
-
-        // Ask if sure.
-        if (!confirm("Are you sure you want to restart?"))
-            return;
-
-        // Sent restart call.
-        $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'restart',
-                output: 'json',
-                apikey: apiKey
-            }
-        });
-    }
-    function shutdown(){
-        // Shutdown SABnzbd.
-
-        // Ask if sure.
-        
-    }
 });
