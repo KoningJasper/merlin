@@ -36,15 +36,15 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="#addNZB" data-toggle="modal" data-target="#addNZB">Add NZB</a></li>
-                    <li><a id="menuStatus" href="#" data="pause">Pause</a></li>
+                    <li><a href="#" data-bind="{text: misc.pause, click: misc.pauseClick, css: misc.pause}"></a></li>
                     <li><a href="#options" data-toggle="modal" data-target="#options">Options</a></li>
                     <li><a href="./config/">Settings</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Power <b class="caret"></b></a>
                         <span class="dropdown-arrow"></span>
                         <ul class="dropdown-menu">
-                            <li><a id="shutdown" href="#">Shutdown</a></li>
-                            <li><a id="restart" href="#">Restart</a></li>
+                            <li><a href="#" data-bind="click: misc.shutdown">Shutdown</a></li>
+                            <li><a href="#" data-bind="click: misc.restart">Restart</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -169,10 +169,10 @@
         	<div class='panel-heading'>
         		<div class='row'>
 	        		<div class='col-xs-6'>
-	        			<span id='queueLead' class="lead">Queue</span>
+	        			<span id='queueLead' class="lead" data-bind="text: misc.queueLead">Queue</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='queue'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data-bind='queue.clear'>Clear</button>
 	        		</div>
         		</div>
         	</div>
@@ -183,7 +183,7 @@
                             <p class='list-group-item-text' data-bind="text: name"></p>
                         </div>
                         <div class='col-xs-1 deleteButton'>
-                            <button class='btn btn-warning btn-xs'>Delete</button>
+                            <button class='btn btn-warning btn-xs' data-bind="click: queue.delete">Delete</button>
                         </div>
                     </div>
                     <div class='rowSpacer'></div>
@@ -207,7 +207,7 @@
 	        			<span id='historyLead' class="lead">History</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='history'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data-bind="click: hist.clear">Clear</button>
 	        		</div>
 	        	</div>
 	        </div>
@@ -218,8 +218,8 @@
                             <p class='list-group-item-text' data-bind="text: name"></p>
                         </div>
                         <div class='col-xs-2 deleteButton'>
-                            <button class='btn btn-info btn-xs infoBtn'>Info</button>
-                            <button class='btn btn-warning btn-xs' id='deleteBtn'>Delete</button>
+                            <button class='btn btn-info btn-xs infoBtn' data-bind="click: hist.info">Info</button>
+                            <button class='btn btn-warning btn-xs' id='deleteBtn' data-bind="click: hist.delete">Delete</button>
                         </div>
                     </div>
                     <div class='row info' style='display: none;'>
@@ -270,7 +270,7 @@
 	        			<span id='statusLead' class="lead">Status</span>
 	        		</div>
 	        		<div class='col-xs-6 clearButton'>
-	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data='status'>Clear</button>
+	        			<button type='button' class='btn btn-danger btn-xs clearBtn' data-bind='click: stat.clear'>Clear</button>
 	        		</div>
 	        	</div>
 	        </div>

@@ -1,12 +1,25 @@
 var items       = 10;    // Number of item(s) to fetch.
 var refreshRate = 1000;  // Refresh Rate in ms.
 var showGraph   = true;  // Show speed graph [true/false].
-var paused      = false; // Is SABnzbd paused.
 var speed;               // Current speed.
 var t;                   // Interval variable.
 var speedChart;          // Speed Graph variable.
 var fspeed;              // Formatted speed [KB/s or MB/s]
 
+// Misc functions //
+function tapiXhr(endpoint, options){
+    var xhr = $.ajax({
+        url: 'tapi',
+        type: 'GET',
+        cache: false,
+        data: $.extend({
+            mode: endpoint,
+            output: 'json',
+            apikey: apiKey
+        }, options)
+    });
+    return xhr;
+}
 // Data templates //
 function queueItem(name, progress){
     var self = this;
@@ -35,16 +48,60 @@ function serverItem(status, server, connections){
 }
 
 // Models //
+var miscModel = function (){
+    var self        = this;
+    self.pause      = ko.observable('Pause');
+    self.queueLead  = ko.observable('Queue');
+    self.shutdown   = function (){
+        if (!confirm("Are you sure you want to shutdown?"))
+            return;
+        // Sent restart call.
+        tapiXhr('shutdown');
+    }
+    self.restart    = function (){
+        if (!confirm("Are you sure you want to shutdown?"))
+            return;
+        // Sent restart call.
+        tapiXhr('restart');
+    }
+    self.pauseClick = function (place, e){
+        tapiXhr($(e.target).attr('class').toLowerCase());
+    }
+    self.refresh    = function (options){
+        var ajaxCall = tapiXhr('queue', { start: 0, limit: items });
+        $.when(ajaxCall).then(function (data){
+            // Paused
+            if (data.queue.paused == true){
+                self.pause('Resume');
+            } else {
+                self.pause('Pause');
+            }
+
+            // Speed
+            speed = parseFloat(data.queue.kbpersec); // Set speed in [KB/s] for graph.
+            fspeed = formatSpeed(data.queue.kbpersec); // Formated speed x [KB/s or MB/s]
+            if (speed == 0){
+                window.document.title = "SABnzbd"; // Set window title without speed.
+            } else {
+                window.document.title = "SABnzbd - "+fspeed; // Set window title with (formatted) current speed.
+            }
+
+            // Time Left
+            var timeLeft = data.queue.timeleft;
+            if(timeLeft !== "0:00:00"){
+                self.queueLead("Queue (~"+timeLeft+" @ "+fspeed+")");
+            } else {
+                self.queueLead("Queue");
+            }
+        });
+    }       
+}
 var serverModel = function (){
     var self = this;
     self.item = ko.observableArray();
     self.last;
     self.refresh = function (options){
-        var ajaxCall = $.ajax({
-            url: 'status/',
-            type: 'GET',
-            cache: false
-        });
+        var ajaxCall = $.ajax({ url: 'status/', type: 'GET', cache: false });
         $.when(ajaxCall).then(function (data){
             // Check if new data.
             if (self.last !== data){
@@ -71,17 +128,13 @@ var statusModel = function (){
     var self  = this;
     self.item = ko.observableArray();
     self.last = 0; // Last status.
+    self.clear = function (place, e){
+        if(!confirm("Are you sure you want to clear the status log?"))
+            return;
+        tapiXhr('warnings', { name: 'delete', value: 'all'});
+    }
     self.refresh = function (options){
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'warnings',
-                output: 'json',
-                apikey: apiKey
-            }
-        });
+        var ajaxCall = tapiXhr('warnings');
         $.when(ajaxCall).then(function (data){
             __temp_last = data.warnings[0].split("\n")[0]
             if(__temp_last !== self.last){
@@ -97,42 +150,20 @@ var statusModel = function (){
     }
 }
 var queueModel = function (){
-    var self = this;
-    self.item = ko.observableArray();
+    var self     = this;
+    self.item    = ko.observableArray();
+    self.delete  = function (place){
+        self.item.remove(place);
+        // Now do some other shit.
+    }
+    self.clear = function (place, e){
+        if(!confirm("Are you sure you want to clear the queue?"))
+            return;
+        tapiXhr('queue', { name: 'delete', value: 'all'});
+    }
     self.refresh = function (options){
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'queue',
-                start: 0,
-                limit: items,
-                output: 'json',
-                apikey: apiKey
-            }
-        });
+        var ajaxCall = tapiXhr('queue', { start: 0, limit: items });
         $.when(ajaxCall).then(function (data){
-            // Paused?
-            paused = data.queue.paused;
-
-            // Speed
-            speed = parseFloat(data.queue.kbpersec); // Set speed in [KB/s]
-            fspeed = formatSpeed(data.queue.kbpersec); // Formated speed x [KB/s or MB/s]
-            if (speed == 0){
-                window.document.title = "SABnzbd"; // Set window title without speed.
-            } else {
-                window.document.title = "SABnzbd - "+fspeed; // Set window title with (formatted) current speed.
-            }
-
-            // Time Left
-            var timeLeft = data.queue.timeleft;
-            if(timeLeft !== "0:00:00"){
-                $("#queueLead").text("Queue (~"+timeLeft+" @ "+fspeed+")");
-            } else {
-                $("#queueLead").text("Queue");
-            }
-
             self.item.removeAll(); // Clear prev. queue.
             $.each(data.queue.slots, function (index){
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
@@ -145,23 +176,27 @@ var historyModel = function (){
     var self = this;
     self.item = ko.observableArray();
     self.last;
+    self.clear = function (place, e){
+        if(!confirm("Are you sure you want to clear the history?"))
+            return;
+        tapiXhr('history', { name: 'delete', value: 'all'});
+    }
+    self.info    = function (place, e){
+        if ($(e.target).parent().parent().parent().children(".info").css('display') == 'none'){
+            $(e.target).parent().parent().parent().children(".info").slideToggle();
+        } else {
+            $(".historyListItem > .info").slideUp();
+        }
+    }
+    self.delete  = function (place){
+        self.item.remove(place);
+    }
     self.refresh = function (options){
-        var ajaxCall = $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'history',
-                start: 0,
-                limit: items,
-                output: 'json',
-                apikey: apiKey
-            }
-        });
+        var ajaxCall = tapiXhr('history', { start: 0, limit: items });
         $.when(ajaxCall).then(function (data){
-
             // Check if newer info.
-            if (self.last !== data.history.slots[0]){
+            if (self.last !== data.history.slots[0].toString()){
+                self.last = data.history.slots[0].toString();
                 self.item.removeAll();
                 $.each(data.history.slots, function (index){
                     self.date = new Date(this.completed * 1000);
@@ -179,7 +214,9 @@ var main = function (){
     self.queue   = new queueModel();
     self.stat    = new statusModel();
     self.servers = new serverModel();
+    self.misc    = new miscModel();
     self.refresh = function (){
+        self.misc.refresh();
         self.hist.refresh();
         self.queue.refresh();
         self.stat.refresh();
@@ -204,7 +241,6 @@ $(document).ready(function(){
 
     // Init
     ko.applyBindings(main);
-    refresh();
     speedGraph();
     Highcharts.setOptions({
         global: {
@@ -214,96 +250,12 @@ $(document).ready(function(){
 
     // Register buttons.
     $("#optionSave").click(optionSave);
-    $("#shutdown").click(shutdown);
-    $("#restart").click(restart);
-    $("#menuStatus").click(menuStatusClick);
-    $("#infoBtn").click(infoBtn);
-    $(".clearBtn").click(clear);
 
     // Refresh periodicly.
     t = window.setInterval(refresh, refreshRate);
 
-    // Functions
-    function optionSave(){
-        // Save options and do somethings with it.
-    }
-    function infoBtn(){
-        if ($(this).parent().parent().parent().children(".info").css('display') == 'none'){
-            $(this).parent().parent().parent().children(".info").slideToggle();
-        } else {
-            $(".historyListItem > .info").slideUp();
-        }
-    }
-    function clear(){
-        var what = $(this).attr('data');
-        if(!confirm("Are you sure you want to clear the "+what+"?"))
-            return;
-        $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: what,
-                name: 'delete',
-                value: 'all',
-                apikey: apiKey
-            }
-        });
-        refresh();
-    }
-    function menuStatusClick(){
-        var action = $("#menuStatus").attr('data');
-        if(action == "pause"){
-            $.ajax({
-                url: 'tapi',
-                type: 'GET',
-                cache: false,
-                data: {
-                    mode: 'pause',
-                    output: 'json',
-                    apikey: apiKey
-                }
-            });
-            paused = true;
-            $("#menuStatus").text('Resume');
-            $('#menuStatus').attr('data', 'resume');
-        } else if(action == "resume"){
-            $.ajax({
-                url: 'tapi',
-                type: 'GET',
-                cache: false,
-                data: {
-                    mode: 'resume',
-                    output: 'json',
-                    apikey: apiKey
-                }
-            });
-            paused = false;
-            $("#menuStatus").text('Pause');
-            $('#menuStatus').attr('data', 'pause');
-        }
-    }
-    function refreshMenuStatus(){
-        if (paused == true){
-            $("#menuStatus").text('Resume');
-            $('#menuStatus').attr('data', 'resume');
-        } else if(paused == false){
-            $("#menuStatus").text('Pause');
-            $('#menuStatus').attr('data', 'pause');
-        }
-    }
     function optionSave(){
         $("#options").modal("hide"); // Hide the modal box
-    }
-    function refresh(){
-        // Refresh everything.
-        fetchHistory();
-        fetchQueue();
-        fetchWarnings();
-        fetchServerStatus();
-        refreshMenuStatus();
-    }
-    function fetchWarnings(){
     }
     
     function speedGraph(){
@@ -381,12 +333,6 @@ $(document).ready(function(){
             });
         }
     }
-    function fetchServerStatus(){
-    }
-    function fetchHistory(){
-    }
-    function fetchQueue(){
-    }
     function restart(){
         // Restart SABnzbd.
 
@@ -410,19 +356,6 @@ $(document).ready(function(){
         // Shutdown SABnzbd.
 
         // Ask if sure.
-        if (!confirm("Are you sure you want to shutdown?"))
-            return;
-
-        // Sent restart call.
-        $.ajax({
-            url: 'tapi',
-            type: 'GET',
-            cache: false,
-            data: {
-                mode: 'shutdown',
-                output: 'json',
-                apikey: apiKey
-            }
-        });
+        
     }
 });
