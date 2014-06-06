@@ -133,7 +133,14 @@ var statusModel = function (){
     self.clear = function (place, e){
         if(!confirm("Are you sure you want to clear the status log?"))
             return;
-        tapiXhr('warnings', { name: 'delete', value: 'all'});
+        $.ajax({
+            url: 'status/clearwarnings',
+            type: 'GET',
+            cache: false,
+            data: {
+                session: apiKey
+            }
+        });
     }
     self.refresh = function (options){
         var ajaxCall = tapiXhr('warnings');
