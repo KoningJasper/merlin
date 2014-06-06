@@ -214,6 +214,7 @@
 	        </div>
             <ul class='list-group' id="historyList" data-bind="foreach: hist.item">
             	<li class='list-group-item historyListItem' id='history'>
+            		<input type='hidden' id='nzo_id' data-bind="value: nzo_id" />
                     <div class='row'>
                         <div class='col-xs-10'>
                             <p class='list-group-item-text' data-bind="text: name"></p>

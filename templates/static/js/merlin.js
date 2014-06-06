@@ -192,7 +192,8 @@ var historyModel = function (){
         }
     }
     self.delete  = function (place){
-        self.item.remove(place);
+        var nzo_id = $(e.target).parent().parent().parent().children("#nzo_id").attr('value');
+        tapiXhr('history', { name: 'delete', value: nzo_id });
     }
     self.refresh = function (options){
         var ajaxCall = tapiXhr('history', { start: 0, limit: items });
