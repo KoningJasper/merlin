@@ -178,6 +178,7 @@
         	</div>
             <ul class='list-group' id="queueList" data-bind="foreach: queue.item">
             	<li class='list-group-item queueListItem'>
+            		<input type='hidden' id='nzo_id' data-bind="value: nzo_id" />
                     <div class='row'>
                         <div class='col-xs-11'>
                             <p class='list-group-item-text' data-bind="text: name"></p>

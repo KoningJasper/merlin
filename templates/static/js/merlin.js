@@ -21,18 +21,20 @@ function tapiXhr(endpoint, options){
     return xhr;
 }
 // Data templates //
-function queueItem(name, progress){
-    var self = this;
-    self.name = name;
+function queueItem(nzo_id, name, progress){
+    var self      = this;
+    self.nzo_id   = nzo_id;
+    self.name     = name;
     self.progress = progress;
 }
-function historyItem(name, status, storage, downloaded, postTime){
-    var self = this;
-    self.name = name;
-    self.status = status;
-    self.storage = storage;
+function historyItem(nzo_id, name, status, storage, downloaded, postTime){
+    var self        = this;
+    self.nzo_id     = nzo_id;
+    self.name       = name;
+    self.status     = status;
+    self.storage    = storage;
     self.downloaded = downloaded;
-    self.postTime = postTime;
+    self.postTime   = postTime;
 }
 function statusItem(type, message, time){
     var self     = this;
@@ -152,9 +154,10 @@ var statusModel = function (){
 var queueModel = function (){
     var self     = this;
     self.item    = ko.observableArray();
-    self.delete  = function (place){
-        self.item.remove(place);
-        // Now do some other shit.
+    self.delete  = function (place, e){
+        var nzo_id = $(e.target).parent().parent().parent().children("#nzo_id").attr('value');
+        tapiXhr('queue', { name: 'delete', value: nzo_id });
+        //self.item.remove(place);
     }
     self.clear = function (place, e){
         if(!confirm("Are you sure you want to clear the queue?"))
@@ -167,7 +170,7 @@ var queueModel = function (){
             self.item.removeAll(); // Clear prev. queue.
             $.each(data.queue.slots, function (index){
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
-                self.item.push(new queueItem(this.filename, String(self.progress)));
+                self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)));
             });
         });
     }
@@ -200,7 +203,7 @@ var historyModel = function (){
                 self.item.removeAll();
                 $.each(data.history.slots, function (index){
                     self.date = new Date(this.completed * 1000);
-                    self.item.push(new historyItem(this.name, this.status, this.storage, this.downloaded, this.postproc_time));
+                    self.item.push(new historyItem(this.nzo_id, this.name, this.status, this.storage, this.downloaded, this.postproc_time));
                 });
             }
         });
