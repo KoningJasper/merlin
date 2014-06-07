@@ -1,6 +1,8 @@
+// Default settings.
 var items       = 10;    // Number of item(s) to fetch.
 var refreshRate = 1000;  // Refresh Rate in ms.
 var showGraph   = true;  // Show speed graph [true/false].
+var speedlim    = false; // Speedlimit [value or false for no speedlimit.]
 var speed;               // Current speed.
 var _t;                  // Interval variable.
 var _gt;                 // Interval variable graph.
@@ -29,6 +31,24 @@ function formatSpeed(sp){
     } else {
         return Math.round(sp * 100) / 100 + "KB/s" // Return x.xx KB/s
     }
+}
+function loadLocalStorage(){
+    // Load settings from localstorage.
+    if(localStorage.getItem('items'))
+        items = localStorage.getItem('items');
+    if(localStorage.getItem('refreshRate'))
+        refreshRate = localStorage.getItem('refreshRate');
+    if(localStorage.getItem('showGraph'))
+        showGraph = localStorage.getItem('showGraph');
+    if(localStorage.getItem('speedlim'))
+        speedlim = localStorage.getItem('speedlim');
+}
+function writeLocalStorage(){
+    // Write settings to localstorage.
+    localStorage.setItem('items', items);
+    localStorage.setItem('refreshRate', refreshRate);
+    localStorage.setItem('showGraph', showGraph);
+    localStorage.setItem('speedlim', speedlim);
 }
 function speedGraph(){
     var chart;
@@ -96,14 +116,12 @@ var miscModel = function (){
     self.shutdown   = function (){
         if (!confirm("Are you sure you want to shutdown?"))
             return;
-        // Sent restart call.
-        tapiXhr('shutdown');
+        tapiXhr('shutdown'); // Sent shutdown call.
     }
     self.restart    = function (){
-        if (!confirm("Are you sure you want to shutdown?"))
+        if (!confirm("Are you sure you want to restart?"))
             return;
-        // Sent restart call.
-        tapiXhr('restart');
+        tapiXhr('restart'); // Sent restart call.
     }
     self.pauseClick = function (place, e){
         tapiXhr($(e.target).attr('class').toLowerCase());
@@ -184,6 +202,9 @@ var statusModel = function (){
     self.refresh = function (options){
         var ajaxCall = tapiXhr('warnings');
         $.when(ajaxCall).then(function (data){
+            if(!data.warnings[0])
+                // No data, quit.
+                return;
             __temp_last = data.warnings[0].split("\n")[0]
             if(__temp_last !== self.last){
                 self.last = __temp_last;
@@ -245,7 +266,7 @@ var historyModel = function (){
         var ajaxCall = tapiXhr('history', { start: 0, limit: items });
         $.when(ajaxCall).then(function (data){
             // Check if newer info.
-            if (self.last !== data.history.slots[0].toString()){
+            if (data.history.slots[0] && self.last !== data.history.slots[0].toString()){
                 self.last = data.history.slots[0].toString();
                 self.item.removeAll();
                 $.each(data.history.slots, function (index){
@@ -260,6 +281,11 @@ var historyModel = function (){
 // Main function //
 var main = function (){
     var self     = this;
+
+    // Load vars from localstorage
+    loadLocalStorage();
+
+    // Set models.
     self.hist    = new historyModel(); // for some reason self.history.refresh() doesn't work so use self.hist.
     self.queue   = new queueModel();
     self.stat    = new statusModel();
@@ -272,6 +298,35 @@ var main = function (){
         self.stat.refresh();
         self.servers.refresh();
     }
+    self.saveOption = function (){
+        var __refreshRate = $("#refreshRate").attr('value');
+        var __items       = $("#itemLimit").attr('value');
+        var __speedlim    = $("#speedLimit").attr('value');
+        if (__refreshRate) {
+            refreshRate = parseInt(__refreshRate) * 1000;
+            window.clearInterval(_t);
+            _t = window.setInterval(self.refresh, refreshRate);
+        } else {
+            // Default.
+            refreshRate = 1000;
+            window.clearInterval(_t);
+            _t = window.setInterval(self.refresh, refreshRate);
+        }
+        if(__items) {
+            items = parseInt(__items);
+        } else {
+            // Default.
+            items = 10;
+        }
+        if(__speedlim) {
+            speedlim = parseInt(speedlim);
+            tapiXhr('config', {name: 'speedlimit', value: speedlim}); // Set speed lim.
+        } else {
+            tapiXhr('config', {name: 'speedlimit', value: 0}); // Reset speed lim.
+        }
+    }
+
+    // Periodically refresh.
     _t = window.setInterval(self.refresh, refreshRate);
 
     // Init

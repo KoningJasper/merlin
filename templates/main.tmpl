@@ -91,25 +91,12 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
-                                <label for="queueRows">Queue</label>
+                                <label for="queueRows">Item Limit</label>
                             </div>
                             <div class="col-xs-6">
                                 <div class="form-group">
                                 	<div class='input-group'>
-	                                    <input id="queueRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
-	                                    <span class="input-group-addon">Rows</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <label for="historyRows">History</label>
-                            </div>
-                            <div class="col-xs-6">
-                                <div class="form-group">
-                                	<div class='input-group'>
-	                                    <input id="historyRows" type="text" pattern="\d*" placeholder="10" class="form-control" />
+	                                    <input id="itemLimit" type="text" pattern="\d*" placeholder="10" class="form-control" />
 	                                    <span class="input-group-addon">Rows</span>
                                     </div>
                                 </div>
@@ -126,7 +113,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" data-target="click: misc.optionSave">Save changes</button>
+                        <button type="button" class="btn btn-success" data-bind="click: saveOption">Save changes</button>
                     </div>
                 </div>
             </div>
