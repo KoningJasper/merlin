@@ -50,6 +50,10 @@ function writeLocalStorage(){
     localStorage.setItem('showGraph', showGraph);
     localStorage.setItem('speedlim', speedlim);
 }
+function graphAddPoint(){
+    var x = (new Date()).getTime(), y = speed;
+    series.addPoint([x, y], true, true);
+}
 function speedGraph(){
     var chart;
     $('#speedGraph').highcharts({
@@ -59,10 +63,7 @@ function speedGraph(){
             marginRight: 10,
             events: {load: function() {
                     var series = this.series[0];
-                    _gt = setInterval(function() {
-                        var x = (new Date()).getTime(), y = speed;
-                        series.addPoint([x, y], true, true);
-                    }, refreshRate);
+                    _gt = setInterval(graphAddPoint, refreshRate);
         }}},
         title: {text: 'Speed'},
         xAxis: {type: 'datetime',tickPixelInterval: 100},
@@ -305,12 +306,16 @@ var main = function (){
         if (__refreshRate) {
             refreshRate = parseInt(__refreshRate) * 1000;
             window.clearInterval(_t);
-            _t = window.setInterval(self.refresh, refreshRate);
+            window.clearInterval(_gt);
+            _t  = window.setInterval(self.refresh, refreshRate);
+            _gt = window.setInterval(graphAddPoint, refreshRate);
         } else {
             // Default.
             refreshRate = 1000;
             window.clearInterval(_t);
-            _t = window.setInterval(self.refresh, refreshRate);
+            window.clearInterval(_gt);
+            _t  = window.setInterval(self.refresh, refreshRate);
+            _gt = window.setInterval(graphAddPoint, refreshRate);
         }
         if(__items) {
             items = parseInt(__items);
@@ -324,6 +329,7 @@ var main = function (){
         } else {
             tapiXhr('config', {name: 'speedlimit', value: 0}); // Reset speed lim.
         }
+        $("#options").modal('hide');
     }
 
     // Periodically refresh.
@@ -334,13 +340,7 @@ var main = function (){
 }
 $(document).ready(function(){
     // Wait untill the document is ready for manipulation.
-
-    // Init
     ko.applyBindings(main);
     speedGraph();
-    Highcharts.setOptions({
-        global: {
-            useUTC: false
-        }
-    });
+    Highcharts.setOptions({global: {useUTC: false}});
 });
