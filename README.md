@@ -20,7 +20,7 @@ TODO
 * Optimize (Remove unused CSS and JS).
 * Shift to newer jQuery lib.
 
-**CSS fixes**
+**CSS**
 * Add spacing between warning and menu-bar.
 * Show in history list that a item has failed.
 * Improve server list layout.
