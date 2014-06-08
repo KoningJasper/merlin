@@ -6,23 +6,27 @@ Scalable multi-device theme for [SABnzbd](http://sabnzbd.org/). Includes various
 
 
 TODO
-____
+----
+**General**
 * Ability to upload NZB's by file upload and url.
 * Drag-drop add NZB's.
 * Add size remaining and total size to queue list.
-* CSS fixes, like fixing the no spacing between warning and menu-bar.
-* Show in history list that a item has failed.
 * Add ability to force if item has failed in history list.
-* Improve server list layout.
 * Change server list ball color if error occurs with server.
-* Fix thick border below first server.
-* Fix menu bar links.
-* Create footer.
 * Display uptime in footer.
 * Update screenshots.
 * Group misc and queue api calls (Cache them or something).
 * Add extra options to queue, like pause individual item.
+* Optimize (Remove unused CSS and JS).
+* Shift to newer jQuery lib.
 
+**CSS fixes**
+* Add spacing between warning and menu-bar.
+* Show in history list that a item has failed.
+* Improve server list layout.
+* Fix thick border below first server.
+* Fix menu bar links.
+* Create footer.
 
 Installation
 ------------
