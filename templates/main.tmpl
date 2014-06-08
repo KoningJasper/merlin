@@ -169,10 +169,11 @@
             	<li class='list-group-item queueListItem'>
             		<input type='hidden' id='nzo_id' data-bind="value: nzo_id" />
                     <div class='row'>
-                        <div class='col-xs-11'>
+                        <div class='col-xs-10'>
                             <p class='list-group-item-text' data-bind="text: name"></p>
                         </div>
-                        <div class='col-xs-1 deleteButton'>
+                        <div class='col-xs-2 deleteButton'>
+                        	<span class='btn btn-default btn-xs sortHandle'>Move</span>
                             <button class='btn btn-warning btn-xs' data-bind="click: queue.delete">Delete</button>
                         </div>
                     </div>
@@ -225,7 +226,7 @@
                             </div>
                             <div class='row'>
                                 <div class='col-xs-2'><span class='list-group-item-text'>Downloaded:</span></div>
-                                <div class='col-xs-9'><span class='list-group-item-text' data-bind="text: downloaded"></span><span class='list-group-item-text'> GB</span></div>
+                                <div class='col-xs-9'><span class='list-group-item-text' data-bind="text: downloaded"></span></div>
                             </div>
                             <div class='row'>
                                 <div class='col-xs-2'><span class='list-group-item-text'>Post:</span></div>

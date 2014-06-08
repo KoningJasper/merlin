@@ -225,6 +225,7 @@ var statusModel = function (){
 var queueModel = function (){
     var self     = this;
     self.item    = ko.observableArray();
+    self.ids     = ko.observableArray();
     self.delete  = function (place, e){
         var nzo_id = $(e.target).parent().parent().parent().children("#nzo_id").attr('value');
         tapiXhr('queue', { name: 'delete', value: nzo_id });
@@ -239,7 +240,9 @@ var queueModel = function (){
         var ajaxCall = tapiXhr('queue', { start: 0, limit: items });
         $.when(ajaxCall).then(function (data){
             self.item.removeAll(); // Clear prev. queue.
+            self.ids.removeAll();
             $.each(data.queue.slots, function (index){
+                self.ids.push(this.nzo_id);
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
                 self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)+"%"));
             });
@@ -278,7 +281,7 @@ var historyModel = function (){
                         warnings.push(this.name+" "+this.status);
                     }
                     self.date = new Date(this.completed * 1000);
-                    self.item.push(new historyItem(this.nzo_id, this.name, this.status, this.storage, this.downloaded, this.postproc_time));
+                    self.item.push(new historyItem(this.nzo_id, this.name, this.status, this.storage, this.size, this.postproc_time));
                 });
             }
         });
@@ -310,8 +313,18 @@ var main = function (){
             self.displayWarnings(warnings.join('<br>'));
             $("#warnings").fadeIn();
         }
-        $('.queueListItem').sortable();
-        $('.historyListItem').sortable();
+        $('#queueList').sortable({axis: "y", handle: ".sortHandle", start: function (event, ui){
+            // Pause so user can easily drag and drop without the interface redrawing.
+            window.clearInterval(_t);
+            window.clearInterval(_gt);
+        }, stop: function (event, ui){
+            // Resume redrawing again and transfer.
+            var __position = ko.utils.arrayIndexOf(ui.item.parent().children(), ui.item[0]); // Code from: http://www.knockmeout.net/2011/05/dragging-dropping-and-sorting-with.html
+            var __nzo_id   = ui.item.children('#nzo_id').attr('value'); // Get NZO-id
+            tapiXhr('switch', {value: __nzo_id, value2: __position});   // Send request to server.
+            _t  = window.setInterval(self.refresh, refreshRate);        // Start redrawing interface again.
+            _gt = window.setInterval(graphAddPoint, refreshRate);       // Start redrawing graph again. 
+        }});
     }
     self.saveOption = function (){
         var __refreshRate = $("#refreshRate").attr('value');
