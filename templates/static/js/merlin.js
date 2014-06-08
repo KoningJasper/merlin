@@ -8,6 +8,8 @@ var _t;                  // Interval variable.
 var _gt;                 // Interval variable graph.
 var speedChart;          // Speed Graph variable.
 var fspeed;              // Formatted speed [KB/s or MB/s]
+var warnings = [];       // List of warnings.
+var series;
 
 // Misc functions //
 function tapiXhr(endpoint, options){
@@ -62,7 +64,7 @@ function speedGraph(){
             animation: Highcharts.svg, // don't animate in old IE
             marginRight: 10,
             events: {load: function() {
-                    var series = this.series[0];
+                    series = this.series[0];
                     _gt = setInterval(graphAddPoint, refreshRate);
         }}},
         title: {text: 'Speed'},
@@ -298,6 +300,9 @@ var main = function (){
         self.queue.refresh();
         self.stat.refresh();
         self.servers.refresh();
+    }
+    self.displayWarnings = function (){
+        if(warnings){}
     }
     self.saveOption = function (){
         var __refreshRate = $("#refreshRate").attr('value');
