@@ -4,6 +4,26 @@ Merlin
 Scalable multi-device theme for [SABnzbd](http://sabnzbd.org/). Includes various extensions, such as a speed graph, not available on the stock theme.
 **THIS IS STILL VERY MUCH A WORK IN PROGRESS!** Right now it's seriously lacking functions but the most rudimentary functions are there. Also it has some weird glitches. Furthermore the code is most likely as inefficient and ugly as hell, but it works for the most part.
 
+
+TODO
+____
+* Ability to upload NZB's by file upload and url.
+* Drag-drop add NZB's.
+* Add size remaining and total size to queue list.
+* CSS fixes, like fixing the no spacing between warning and menu-bar.
+* Show in history list that a item has failed.
+* Add ability to force if item has failed in history list.
+* Improve server list layout.
+* Change server list ball color if error occurs with server.
+* Fix thick border below first server.
+* Fix menu bar links.
+* Create footer.
+* Display uptime in footer.
+* Update screenshots.
+* Group misc and queue api calls (Cache them or something).
+* Add extra options to queue, like pause individual item.
+
+
 Installation
 ------------
 ### Windows ###
@@ -20,8 +40,18 @@ Installation
 * Go to `Config->General->Skins` and select `Merlin`.
 * Press restart.
 
+**OR** 
+* Run: `git clone https://github.com/sloth-o-naut/merlin.git /Applications/SABnzbd.app/Contents/Resources/interfaces/Merlin`
+* Open SABnzbd.
+* Go to `Config->General->Skins` and select `Merlin`.
+* Press restart.
+
 ### Linux ###
-* Extract to interfaces folder......
+* Grab the latest version from [here](https://github.com/sloth-o-naut/merlin/archive/master.zip) or click ZIP button above.
+* Extract to `...SABnzbd_Path.../interfaces/Merlin`.
+* Open SABnzbd.
+* Go to `Config->General->Skins` and select `Merlin`.
+* Press restart.
 
 Screenshots
 -----------
