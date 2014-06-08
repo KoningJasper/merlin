@@ -209,6 +209,7 @@ var statusModel = function (){
                 // No data, quit.
                 return;
             __temp_last = data.warnings[0].split("\n")[0]
+            warnings.push('Error, status');
             if(__temp_last !== self.last){
                 self.last = __temp_last;
                 self.item.removeAll();
@@ -240,7 +241,7 @@ var queueModel = function (){
             self.item.removeAll(); // Clear prev. queue.
             $.each(data.queue.slots, function (index){
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
-                self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)));
+                self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)+"%"));
             });
         });
     }
@@ -273,6 +274,9 @@ var historyModel = function (){
                 self.last = data.history.slots[0].toString();
                 self.item.removeAll();
                 $.each(data.history.slots, function (index){
+                    if(this.status == "Failed"){
+                        warnings.push(this.name+" "+this.status);
+                    }
                     self.date = new Date(this.completed * 1000);
                     self.item.push(new historyItem(this.nzo_id, this.name, this.status, this.storage, this.downloaded, this.postproc_time));
                 });
@@ -294,15 +298,20 @@ var main = function (){
     self.stat    = new statusModel();
     self.servers = new serverModel();
     self.misc    = new miscModel();
+    self.displayWarnings = ko.observable();
     self.refresh = function (){
         self.misc.refresh();
         self.hist.refresh();
         self.queue.refresh();
         self.stat.refresh();
         self.servers.refresh();
-    }
-    self.displayWarnings = function (){
-        if(warnings){}
+
+        if(warnings && warnings.join('<br>') !== self.displayWarnings){
+            self.displayWarnings(warnings.join('<br>'));
+            $("#warnings").fadeIn();
+        }
+        $('.queueListItem').sortable();
+        $('.historyListItem').sortable();
     }
     self.saveOption = function (){
         var __refreshRate = $("#refreshRate").attr('value');
