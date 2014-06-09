@@ -45,3 +45,13 @@
 .gray {
     background-color: #c3c3c3;
 }
+.sortHandle {
+    cursor: move;
+}
+/*
+@media screen and (min-width: 1024px){
+    body, p, span, a, li, ul, button {
+        font-size: 13px;
+    }
+}
+*/

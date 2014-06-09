@@ -83,11 +83,17 @@ function speedGraph(){
     });
 }
 // Data templates //
-function queueItem(nzo_id, name, progress){
+function queueItem(nzo_id, name, progress, status, eta, missing, sizeleft, priority, category){
     var self      = this;
     self.nzo_id   = nzo_id;
     self.name     = name;
     self.progress = progress;
+    self.status   = status;
+    self.eta      = eta;
+    self.missing  = missing;
+    self.sizeleft = sizeleft;
+    self.priority = priority;
+    self.category = category;
 }
 function historyItem(nzo_id, name, status, storage, downloaded, postTime){
     var self        = this;
@@ -244,7 +250,7 @@ var queueModel = function (){
             $.each(data.queue.slots, function (index){
                 self.ids.push(this.nzo_id);
                 self.progress = (Math.round((this.mb - this.mbleft) / this.mb * 100 * 100) / 100); // Progress in percent to two decimal places.
-                self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)+"%"));
+                self.item.push(new queueItem(this.nzo_id, this.filename, String(self.progress)+"%", this.status, this.eta, this.missing, this.sizeleft, this.priority, this.cat));
             });
         });
     }
@@ -253,6 +259,7 @@ var historyModel = function (){
     var self = this;
     self.item = ko.observableArray();
     self.last;
+    self.warnings = [];
     self.clear = function (place, e){
         if(!confirm("Are you sure you want to clear the history?"))
             return;
@@ -273,12 +280,13 @@ var historyModel = function (){
         var ajaxCall = tapiXhr('history', { start: 0, limit: items });
         $.when(ajaxCall).then(function (data){
             // Check if newer info.
-            if (data.history.slots[0] && self.last !== data.history.slots[0].toString()){
-                self.last = data.history.slots[0].toString();
+            if (data.history.slots[0] && self.last !== JSON.stringify(data.history.slots[0])){
+                self.last = JSON.stringify(data.history.slots[0]);
                 self.item.removeAll();
+                self.warnings = [];
                 $.each(data.history.slots, function (index){
                     if(this.status == "Failed"){
-                        warnings.push(this.name+" "+this.status);
+                        self.warnings.push(this.name+" "+this.status);
                     }
                     self.date = new Date(this.completed * 1000);
                     self.item.push(new historyItem(this.nzo_id, this.name, this.status, this.storage, this.size, this.postproc_time));
@@ -310,7 +318,7 @@ var main = function (){
         self.servers.refresh();
 
         if(warnings && warnings.join('<br>') !== self.displayWarnings){
-            self.displayWarnings(warnings.join('<br>'));
+            self.displayWarnings('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+self.hist.warnings.join('<br />'));
             $("#warnings").fadeIn();
         }
         $('#queueList').sortable({axis: "y", handle: ".sortHandle", start: function (event, ui){
