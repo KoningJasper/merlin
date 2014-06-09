@@ -132,6 +132,16 @@ var miscModel = function (){
             return;
         tapiXhr('restart'); // Sent restart call.
     }
+    self.addNZB     = function (place, e){
+        var __nzbURL     = $('#nzbURL').attr('value');
+        var __nzbFile = $('#nzbFile').attr('value');
+        if(__nzbURL)
+            alert(__nzbURL);
+            tapiXhr('addurl', {name: __nzbURL, nzbname: __nzbURL});
+        if(__nzbFile)
+            fileUpload(); // Do some shit.
+        $("#addNZB").modal('hide');
+    }
     self.pauseClick = function (place, e){
         tapiXhr($(e.target).attr('class').toLowerCase());
     }
