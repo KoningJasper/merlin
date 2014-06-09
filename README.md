@@ -8,7 +8,7 @@ Scalable multi-device theme for [SABnzbd](http://sabnzbd.org/). Includes various
 TODO
 ----
 **General**
-* Fix history, items aren't being added to history until refresh.
+* ~~Fix history, items aren't being added to history until refresh.~~
 * Ability to upload NZB's by file upload and url.
 * Drag-drop add NZB's.
 * Add size remaining and total size to queue list.
